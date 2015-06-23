@@ -1,6 +1,6 @@
 
 #include <kafkalite.h>
-#include "klcontext_tests.h"
+#include "KLContextTests.h"
 
 KLContextTests::KLContextTests()
 {
