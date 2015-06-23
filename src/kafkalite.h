@@ -4,6 +4,7 @@
 
 #include "klfwddefs.h"
 #include "klcontext.h"
+#include "klarray.h"
 
 #endif
 

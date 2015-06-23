@@ -1,8 +1,9 @@
 #!/bin/sh
 
+rm -f ../bld/kltests
 mkdir -p ../bld ; cd ../bld
-gcc --pedantic -Wall -std=c99 -g -c ../src/*.c
+gcc -Wall -std=c99 -g -c ../src/*.c
 ar -cvq libkafkalite.a *.o
 cd -
-gcc main.c -I ../src/ -L../bld -o ../bld/kltests -lcheck -lkafkalite
+g++ *.cc main.c -I ../src/ ../bld/*.o -o ../bld/kltests -lcppunit 
 ../bld/kltests
