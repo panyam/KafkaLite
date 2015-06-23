@@ -28,3 +28,10 @@ void kl_context_destroy(KLContext *context)
 		free(context);
 }
 
+/**
+ * Gets the base folder for the KL context.
+ */
+const char *kl_context_basedir(KLContext *context)
+{
+	return context ? context->basedir : NULL;
+}

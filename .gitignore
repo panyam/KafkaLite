@@ -32,6 +32,7 @@
 *.dSYM/
 
 # autoconf related things
+bld/
 autom4te.cache
 aclocal.m4
 config.log

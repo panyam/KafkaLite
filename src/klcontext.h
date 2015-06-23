@@ -17,5 +17,10 @@ extern KLContext *kl_context_new(const char *basedir);
  */
 extern void kl_context_destroy(KLContext *context);
 
+/**
+ * Gets the base folder for the KL context.
+ */
+extern const char *kl_context_basedir(KLContext *context);
+
 #endif
 
