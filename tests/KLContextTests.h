@@ -8,8 +8,8 @@ class KLContextTests : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(KLContextTests);
 	CPPUNIT_TEST(test_kl_context_new);
-	CPPUNIT_TEST(test_kl_context_topic_open);
-	CPPUNIT_TEST(test_kl_context_topic_close);
+	CPPUNIT_TEST(test_kl_topic_open);
+	CPPUNIT_TEST(test_kl_topic_close);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -17,8 +17,8 @@ public:
 	virtual void tearDown(void) { }
 
 	void test_kl_context_new();
-	void test_kl_context_topic_open();
-	void test_kl_context_topic_close();
+	void test_kl_topic_open();
+	void test_kl_topic_close();
 };
 
 #endif

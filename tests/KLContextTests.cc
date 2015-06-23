@@ -10,24 +10,24 @@ void KLContextTests::test_kl_context_new()
 	kl_context_destroy(out);
 }
 
-void KLContextTests::test_kl_context_topic_open()
+void KLContextTests::test_kl_topic_open()
 {
 	KLContext *ctx= kl_context_new("/tmp");
-	KLTopic *t1 = kl_context_topic_open(ctx, "topic");
-	KLTopic *t2 = kl_context_topic_open(ctx, "topic");
+	KLTopic *t1 = kl_topic_open(ctx, "topic");
+	KLTopic *t2 = kl_topic_open(ctx, "topic");
 	CPPUNIT_ASSERT(t1 == t2);
 	kl_context_destroy(ctx);
 }
 
-void KLContextTests::test_kl_context_topic_close()
+void KLContextTests::test_kl_topic_close()
 {
 	KLContext *ctx= kl_context_new("/tmp");
-	KLTopic *t1 = kl_context_topic_open(ctx, "topic");
-	KLTopic *t2 = kl_context_topic_open(ctx, "topic");
-	kl_context_topic_close(ctx, t1);
-	CPPUNIT_ASSERT(kl_context_topic_find(ctx, "topic") == 0);
-	kl_context_topic_close(ctx, t1);
-	CPPUNIT_ASSERT(kl_context_topic_find(ctx, "topic") == -1);
+	KLTopic *t1 = kl_topic_open(ctx, "topic");
+	KLTopic *t2 = kl_topic_open(ctx, "topic");
+	kl_topic_close(t1);
+	CPPUNIT_ASSERT(kl_topic_find(ctx, "topic") == 0);
+	kl_topic_close(t1);
+	CPPUNIT_ASSERT(kl_topic_find(ctx, "topic") == -1);
 	kl_context_destroy(ctx);
 }
 
