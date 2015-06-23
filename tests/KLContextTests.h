@@ -2,7 +2,7 @@
 #ifndef __KL_CONTEXT_TESTS_H__
 #define __KL_CONTEXT_TESTS_H__
 
-#include "kltests_base.h"
+#include "KLTests.h"
 
 class KLContextTests : public CppUnit::TestFixture
 {
