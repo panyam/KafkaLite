@@ -88,6 +88,7 @@ void kl_context_topic_close(KLContextRef context, KLTopic *topic)
 		if (topic->refCount == 0)
 		{
 			// TODO: reclaim if hits 0
+			kl_array_remove_at(context->topics, index);
 		}
 	}
 }

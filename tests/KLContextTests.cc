@@ -2,10 +2,6 @@
 #include <kafkalite.h>
 #include "KLContextTests.h"
 
-KLContextTests::KLContextTests()
-{
-}
-
 void KLContextTests::test_kl_context_new()
 {
 	KLContext *out = kl_context_new("/tmp");
@@ -20,6 +16,18 @@ void KLContextTests::test_kl_context_topic_open()
 	KLTopic *t1 = kl_context_topic_open(ctx, "topic");
 	KLTopic *t2 = kl_context_topic_open(ctx, "topic");
 	CPPUNIT_ASSERT(t1 == t2);
+	kl_context_destroy(ctx);
+}
+
+void KLContextTests::test_kl_context_topic_close()
+{
+	KLContext *ctx= kl_context_new("/tmp");
+	KLTopic *t1 = kl_context_topic_open(ctx, "topic");
+	KLTopic *t2 = kl_context_topic_open(ctx, "topic");
+	kl_context_topic_close(ctx, t1);
+	CPPUNIT_ASSERT(kl_context_topic_find(ctx, "topic") == 0);
+	kl_context_topic_close(ctx, t1);
+	CPPUNIT_ASSERT(kl_context_topic_find(ctx, "topic") == -1);
 	kl_context_destroy(ctx);
 }
 
