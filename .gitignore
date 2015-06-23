@@ -30,3 +30,9 @@
 
 # Debug files
 *.dSYM/
+
+# autoconf related things
+autom4te.cache
+aclocal.m4
+config.log
+config.status
