@@ -18,14 +18,58 @@ void kl_pthread_mutex_destroy(void *data)
 	pthread_mutex_destroy((pthread_mutex_t *)data);
 }
 
-void kl_pthread_mutex_lock(void *data)
+void kl_pthread_mutex_lock(void *data, bool tryOnly)
 {
-	pthread_mutex_lock((pthread_mutex_t *)data);
+	if (tryOnly)
+	{
+		pthread_mutex_trylock((pthread_mutex_t *)data);
+	} else {
+		pthread_mutex_lock((pthread_mutex_t *)data);
+	}
 }
 
 void kl_pthread_mutex_unlock(void *data)
 {
 	pthread_mutex_unlock((pthread_mutex_t *)data);
+}
+
+////// RW Locks
+
+void *kl_pthread_rwlock_new(void *data)
+{
+	pthread_rwlock_t *Mutex = calloc(1, sizeof(pthread_rwlock_t));;
+	pthread_rwlock_init(Mutex, NULL);
+	return Mutex;
+}
+
+void kl_pthread_rwlock_destroy(void *data)
+{
+	pthread_rwlock_destroy((pthread_rwlock_t *)data);
+}
+
+void kl_pthread_rwlock_rdlock(void *data, bool tryOnly)
+{
+	if (tryOnly)
+	{
+		pthread_rwlock_tryrdlock((pthread_rwlock_t *)data);
+	} else {
+		pthread_rwlock_rdlock((pthread_rwlock_t *)data);
+	}
+}
+
+void kl_pthread_rwlock_wrlock(void *data, bool tryOnly)
+{
+	if (tryOnly)
+	{
+		pthread_rwlock_trywrlock((pthread_rwlock_t *)data);
+	} else {
+		pthread_rwlock_wrlock((pthread_rwlock_t *)data);
+	}
+}
+
+void kl_pthread_rwlock_rdunlock(void *data)
+{
+	pthread_rwlock_unlock((pthread_rwlock_t *)data);
 }
 
 KLMutexFactory *kl_pthread_mutex_factory()
@@ -35,5 +79,12 @@ KLMutexFactory *kl_pthread_mutex_factory()
 	factory->MutexDestroy = kl_pthread_mutex_destroy;
 	factory->MutexLock = kl_pthread_mutex_lock;
 	factory->MutexUnlock = kl_pthread_mutex_unlock;
+
+	factory->RWLockNew = kl_pthread_rwlock_new;
+	factory->RWLockDestroy = kl_pthread_rwlock_destroy;
+	factory->RWLockReadLock = kl_pthread_rwlock_rdlock;
+	factory->RWLockWriteLock = kl_pthread_rwlock_wrlock;
+	factory->RWLockUnlock = kl_pthread_rwlock_rdunlock;
+
 	return factory;
 }

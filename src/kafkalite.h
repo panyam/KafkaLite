@@ -7,8 +7,8 @@
 #include "klarray.h"
 #include "klbuffer.h"
 #include "kltopics.h"
-#include "klmutex.h"
 #include "klutils.h"
+#include "klconcurrency.h"
 #include "klpthreadmutex.h"
 
 #endif

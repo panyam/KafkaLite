@@ -17,11 +17,6 @@ struct KLContext
 	char *topicsDir;
 
 	/**
-	 * Name of the topic group.
-	 */
-	const char *name;
-
-	/**
 	 * The factory to manage mutexes.
 	 */
 	KLMutexFactory *mutexFactory;
@@ -68,6 +63,11 @@ struct KLTopic
 	 */
 	KLBuffer *dataBuffer;
 	KLBuffer *indexBuffer;
+
+	/**
+	 * Current message offset.
+	 */
+	size_t currOffset;
 };
 
 #endif

@@ -19,11 +19,9 @@ int kl_topic_find_unlocked(KLContextRef context, const char *name)
  */
 int kl_topic_find(KLContextRef context, const char *name)
 {
-	if (context->mutexFactory)
-		context->mutexFactory->MutexLock(context->topicsMutex);
+	KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
 	int index = kl_topic_find_unlocked(context, name);
-	if (context->mutexFactory)
-		context->mutexFactory->MutexUnlock(context->topicsMutex);
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
 	return index;
 }
 
@@ -34,6 +32,8 @@ int kl_topic_find(KLContextRef context, const char *name)
  */
 KLTopic *kl_topic_open(KLContextRef context, const char *name)
 {
+	KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
+
 	// see if this topic is already opened
 	// if so then just increment its count
 	KLTopic *topic = NULL;
@@ -48,6 +48,8 @@ KLTopic *kl_topic_open(KLContextRef context, const char *name)
 	}
 	topic->refCount++;
 	topic->context = context;
+
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
 	return topic;
 }
 
@@ -60,6 +62,7 @@ void kl_topic_close(KLTopic *topic)
 		return ;
 
 	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
 	// see if this topic is already opened
 	// if so then just increment its count
 	int index = kl_topic_find_unlocked(context, topic->name);
@@ -72,12 +75,18 @@ void kl_topic_close(KLTopic *topic)
 			kl_array_remove_at(context->topics, index);
 		}
 	}
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
 }
 
 void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 {
 	if (topic)
 	{
+		KLContextRef context = topic->context;
+		// TODO: apply write lock
+
+		KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
+		KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
 	}
 }
 
