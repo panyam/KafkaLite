@@ -15,6 +15,8 @@ extern bool ensure_directory(const char *path);
  */
 extern void rmdirs(const char *path);
 
+extern long long current_timestamp();
+
 #define kl_log 		printf
 
 #if defined(_cplusplus) || defined(__cplusplus)

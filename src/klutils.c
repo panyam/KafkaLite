@@ -35,3 +35,8 @@ void rmdirs(const char *path)
 	nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
 
+long long current_timestamp() {
+	struct timeval te; 
+	gettimeofday(&te, NULL); // get current time
+	return te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
+}

@@ -26,6 +26,11 @@ extern void kl_context_close(KLContext *context);
  */
 extern const char *kl_context_basedir(KLContext *context);
 
+/**
+ * Sets the mutex factory.
+ */
+extern void kl_context_set_mutex_factory(KLContext *context, KLMutexFactory *mutexFactory);
+
 #if defined(_cplusplus) || defined(__cplusplus)
 }
 #endif

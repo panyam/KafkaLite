@@ -22,15 +22,29 @@ KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
 		return NULL;
 	}
 
-	out->mutexFactory = mutexFactory;
-
 	out->topics = kl_array_new(sizeof(KLTopic), 32);
-	if (out->mutexFactory)
-	{
-		out->topicsMutex = out->mutexFactory->MutexNew(NULL);
-		out->rwLock = out->mutexFactory->RWLockNew(NULL);
-	}
+	kl_context_set_mutex_factory(out, mutexFactory);
 	return out;
+}
+
+/**
+ * Sets the mutex factory.
+ */
+void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory)
+{
+	if (ctx->mutexFactory)
+	{
+		// remove old mutexes
+		ctx->mutexFactory->MutexDestroy(ctx->topicsMutex);
+		ctx->mutexFactory->RWLockDestroy(ctx->topicRWLock);
+	}
+	ctx->mutexFactory = mutexFactory;
+	if (ctx->mutexFactory)
+	{
+		// create new mutexes
+		ctx->topicsMutex = ctx->mutexFactory->MutexNew(NULL);
+		ctx->topicRWLock = ctx->mutexFactory->RWLockNew(NULL);
+	}
 }
 
 /**
@@ -49,8 +63,7 @@ void kl_context_close(KLContext *context)
 			kl_topic_finalize(topic);
 		}
 		kl_array_destroy(context->topics);
-		if (context->mutexFactory)
-			context->mutexFactory->MutexDestroy(context->topicsMutex);
+		kl_context_set_mutex_factory(context, NULL);
 		free(context->baseDir);
 		free(context->topicsDir);
 		free(context);

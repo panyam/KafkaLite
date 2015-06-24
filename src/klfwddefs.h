@@ -2,9 +2,13 @@
 #ifndef __KAFKA_LITE_FWD_DEFS_H__
 #define __KAFKA_LITE_FWD_DEFS_H__
 
+#include <inttypes.h>
+#include <time.h>
+#include <math.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdbool.h>

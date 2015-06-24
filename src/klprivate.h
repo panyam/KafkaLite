@@ -34,7 +34,7 @@ struct KLContext
 	/**
 	 * RW Lock on accesses to all topics in the group.
 	 */
-	void *rwLock;
+	void *topicRWLock;
 };
 
 struct KLTopic
@@ -61,6 +61,19 @@ struct KLTopic
 
 	int dataFile;
 	int indexFile;
+	int metadataFile;
+
+	/**
+	 * Buffers to write data to prevent frequent writes to disk.
+	 */
+	KLBuffer *dataBuffer;
+	KLBuffer *indexBuffer;
+
+	/**
+	 * Only flush to disk when the number of published messages exceeds this
+	 * threshold (in bytes).
+	 */
+	size_t flushThreshold;
 
 	/**
 	 * Reference count of this topic.

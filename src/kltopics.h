@@ -11,10 +11,9 @@ extern "C" {
 
 struct KLMessageInfo
 {
-	unsigned index;
 	unsigned offset;
-	size_t size;
-	unsigned long long timestamp;
+	unsigned size;
+	unsigned timestamp;
 };
 
 
