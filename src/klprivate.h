@@ -59,6 +59,9 @@ struct KLTopic
 	 */
 	size_t currOffset;
 
+	/**
+	 * Seperate data, index and metadata file per topic.
+	 */
 	int dataFile;
 	int indexFile;
 	int metadataFile;

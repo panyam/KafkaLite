@@ -25,7 +25,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 	topic->currOffset = 0;
 	topic->dataBuffer = kl_buffer_new(0);
 	topic->indexBuffer = kl_buffer_new(0);
-	topic->flushThreshold = 1000000;		// flush from memory to disk once data in mem exceeds this
+	topic->flushThreshold = 100000;		// flush from memory to disk once data in mem exceeds this
 	char buffer[2048];
 
 	errno = 0;
