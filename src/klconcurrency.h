@@ -12,6 +12,12 @@ extern "C" {
 #define KL_MUTEX_TRYLOCK(factory, mutex)	do { if (factory) factory->MutexLock(mutex, true); } while(0)
 #define KL_MUTEX_UNLOCK(factory, mutex)		do { if (factory) factory->MutexUnlock(mutex); } while(0)
 
+#define KL_RWLOCK_RDLOCK(factory, mutex)	do { if (factory) factory->RWLockReadLock(mutex, false); } while(0)
+#define KL_RWLOCK_TRYRDLOCK(factory, mutex)	do { if (factory) factory->RWLockReadLock(mutex, true); } while(0)
+#define KL_RWLOCK_WRLOCK(factory, mutex)	do { if (factory) factory->RWLockWriteLock(mutex, false); } while(0)
+#define KL_RWLOCK_TRYWRLOCK(factory, mutex)	do { if (factory) factory->RWLockWriteLock(mutex, true); } while(0)
+#define KL_RWLOCK_UNLOCK(factory, mutex)	do { if (factory) factory->RWLockUnlock(mutex); } while(0)
+
 /** 
  * A factory for managing platform specific concurrency primitives.
  */

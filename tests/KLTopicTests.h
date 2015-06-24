@@ -8,7 +8,7 @@ class KLTopicTests : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(KLTopicTests);
 	CPPUNIT_TEST(test_kl_topic_publish);
-	CPPUNIT_TEST(test_kl_topic_consume);
+	CPPUNIT_TEST(test_kl_topic_restart);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -16,7 +16,7 @@ public:
 	virtual void tearDown(void) { }
 
 	void test_kl_topic_publish();
-	void test_kl_topic_consume();
+	void test_kl_topic_restart();
 };
 
 #endif

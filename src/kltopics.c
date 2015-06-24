@@ -14,6 +14,33 @@ int kl_topic_find_unlocked(KLContextRef context, const char *name)
 	return -1;
 }
 
+void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
+{
+	topic->context = context;
+	topic->name = strdup(name);
+	topic->refCount = 0;
+	topic->numMessages = 0;
+	topic->currOffset = 0;
+	topic->dataBuffer = kl_buffer_new(0);
+	topic->indexBuffer = kl_buffer_new(0);
+}
+
+void kl_topic_finalize(KLTopic *topic)
+{
+	if (topic)
+	{
+		topic->context = NULL;
+		topic->refCount = 0;
+		topic->numMessages = 0;
+		topic->currOffset = 0;
+		free(topic->name); topic->name = NULL;
+		kl_buffer_destroy(topic->dataBuffer);
+		kl_buffer_destroy(topic->indexBuffer);
+		if (topic->dataFile != NULL) fclose(topic->dataFile); topic->dataFile = NULL;
+		if (topic->indexFile != NULL) fclose(topic->indexFile); topic->indexFile = NULL;
+	}
+}
+
 /**
  * Finds a topic by name and returns its index.
  */
@@ -41,13 +68,11 @@ KLTopic *kl_topic_open(KLContextRef context, const char *name)
 	if (index < 0)
 	{
 		topic = kl_array_insert_at(context->topics, -1);
-		topic->name = strdup(name);
-		topic->refCount = 0;
+		kl_topic_initialize(context, topic, name);
 	} else {
 		topic = kl_array_element_at(context->topics, index);
 	}
 	topic->refCount++;
-	topic->context = context;
 
 	KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
 	return topic;
@@ -56,11 +81,12 @@ KLTopic *kl_topic_open(KLContextRef context, const char *name)
 /**
  * Closes a topic if it is opened.
  */
-void kl_topic_close(KLTopic *topic)
+bool kl_topic_close(KLTopic *topic)
 {
 	if (!topic)
-		return ;
+		return false;
 
+	bool alive = true;
 	KLContextRef context = topic->context;
 	KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
 	// see if this topic is already opened
@@ -72,10 +98,13 @@ void kl_topic_close(KLTopic *topic)
 		topic->refCount--;
 		if (topic->refCount == 0)
 		{
+			alive = false;
+			kl_topic_finalize(topic);
 			kl_array_remove_at(context->topics, index);
 		}
 	}
 	KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
+	return alive;
 }
 
 void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
@@ -83,10 +112,17 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 	if (topic)
 	{
 		KLContextRef context = topic->context;
-		// TODO: apply write lock
 
-		KL_MUTEX_LOCK(context->mutexFactory, context->topicsMutex);
-		KL_MUTEX_UNLOCK(context->mutexFactory, context->topicsMutex);
+		KL_RWLOCK_WRLOCK(context->mutexFactory, context->rwLock);
+		KLMessageInfo info;
+		info.offset = topic->currOffset;
+		info.index = topic->numMessages;
+		info.size = msgsize;
+		kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize), sizeof(msgsize));
+		kl_buffer_append(topic->dataBuffer, msg, msgsize);
+		kl_buffer_append(topic->indexBuffer, (const char *)(&info), sizeof(info));
+		topic->numMessages++;
+		KL_RWLOCK_UNLOCK(context->mutexFactory, context->rwLock);
 	}
 }
 
@@ -94,6 +130,9 @@ int kl_topic_message_count(KLTopic *topic)
 {
 	if (!topic)
 		return 0;
-	return 0;
+	KL_RWLOCK_RDLOCK(topic->context->mutexFactory, topic->context->rwLock);
+	int out = topic->numMessages;
+	KL_RWLOCK_UNLOCK(topic->context->mutexFactory, topic->context->rwLock);
+	return out;
 }
 

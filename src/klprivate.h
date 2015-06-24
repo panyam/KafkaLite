@@ -30,6 +30,11 @@ struct KLContext
 	 * The mutex to safeguard the list of topics in this group.
 	 */
 	void *topicsMutex;
+
+	/**
+	 * RW Lock on accesses to all topics in the group.
+	 */
+	void *rwLock;
 };
 
 struct KLTopic
@@ -42,7 +47,7 @@ struct KLTopic
 	/**
 	 * Name of the topic.
 	 */
-	const char *name;
+	char *name;
 
 	/**
 	 * Number of messages in the topic.

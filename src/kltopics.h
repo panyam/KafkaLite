@@ -13,8 +13,8 @@ struct KLMessageInfo
 {
 	unsigned index;
 	unsigned offset;
-	size_t msgsize;
-	unsigned timestamp;
+	size_t size;
+	unsigned long long timestamp;
 };
 
 
@@ -32,7 +32,7 @@ extern KLTopic *kl_topic_open(KLContextRef context, const char *name);
 /**
  * Closes a topic if it is opened.
  */
-extern void kl_topic_close(KLTopic *topic);
+extern bool kl_topic_close(KLTopic *topic);
 
 /**
  * Finds a topic by name and returns its index.
@@ -54,6 +54,9 @@ extern void kl_topic_message_info(KLTopic *topic, size_t offset, KLMessageInfo *
  * Return the number of messages in the topic.
  */
 extern int kl_topic_message_count(KLTopic *topic);
+
+extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
+extern void kl_topic_finalize(KLTopic *topic);
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }

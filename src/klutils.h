@@ -10,6 +10,8 @@ extern "C" {
 
 extern bool ensure_directory(const char *path);
 
+#define kl_log 		printf
+
 #if defined(_cplusplus) || defined(__cplusplus)
 }
 #endif

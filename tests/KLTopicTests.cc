@@ -18,16 +18,22 @@ void KLTopicTests::test_kl_topic_publish()
 	kl_context_close(ctx);
 }
 
-void KLTopicTests::test_kl_topic_consume()
+/**
+ * Test that a publish persists data on a restart.
+ */
+void KLTopicTests::test_kl_topic_restart()
 {
-	KLContext *ctx= kl_context_open(TEST_DIR, NULL);
-	KLTopic *t1 = kl_topic_open(ctx, "topic");
-	KLTopic *t2 = kl_topic_open(ctx, "topic");
-	kl_topic_close(t1);
-	CPPUNIT_ASSERT(kl_topic_find(ctx, "topic") == 0);
-	kl_topic_close(t1);
-	CPPUNIT_ASSERT(kl_topic_find(ctx, "topic") == -1);
+	KLContext *ctx = kl_context_open(TEST_DIR, NULL);
+	KLTopic *topic = kl_topic_open(ctx, "topic");
+	kl_topic_publish(topic, "hello world", strlen("hello world"));
+	CPPUNIT_ASSERT(kl_topic_message_count(topic) == 1);
+
+	// now close the context and open it again
 	kl_context_close(ctx);
+
+	ctx = kl_context_open(TEST_DIR, NULL);
+	topic = kl_topic_open(ctx, "topic");
+	CPPUNIT_ASSERT(kl_topic_message_count(topic) == 1);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( KLTopicTests );

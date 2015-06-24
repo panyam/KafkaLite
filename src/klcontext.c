@@ -19,7 +19,10 @@ KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
 
 	out->topics = kl_array_new(sizeof(KLTopic), 32);
 	if (out->mutexFactory)
+	{
 		out->topicsMutex = out->mutexFactory->MutexNew(NULL);
+		out->rwLock = out->mutexFactory->RWLockNew(NULL);
+	}
 	return out;
 }
 
@@ -31,6 +34,13 @@ void kl_context_close(KLContext *context)
 {
 	if (context)
 	{
+		kl_log("Closing context...\n");
+		for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
+		{
+			// close the context
+			KLTopic *topic = (KLTopic *)kl_array_element_at(context->topics, i);
+			kl_topic_finalize(topic);
+		}
 		kl_array_destroy(context->topics);
 		if (context->mutexFactory)
 			context->mutexFactory->MutexDestroy(context->topicsMutex);
