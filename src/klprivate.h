@@ -55,24 +55,17 @@ struct KLTopic
 	size_t numMessages;
 
 	/**
-	 * Reference count of this topic.
-	 */
-	int refCount;
-
-	FILE *dataFile;
-	FILE *indexFile;
-
-	/**
-	 * Data is copied to this buffer and only flushed to disk if this buffer
-	 * is exceeded.
-	 */
-	KLBuffer *dataBuffer;
-	KLBuffer *indexBuffer;
-
-	/**
 	 * Current message offset.
 	 */
 	size_t currOffset;
+
+	int dataFile;
+	int indexFile;
+
+	/**
+	 * Reference count of this topic.
+	 */
+	int refCount;
 };
 
 #endif

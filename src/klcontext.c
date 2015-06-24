@@ -14,6 +14,13 @@ KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
 	out->baseDir = strdup(baseDir);
 	out->topicsDir = malloc(strlen(baseDir) + 1 + strlen("/topics"));
 	sprintf(out->topicsDir, "%s/topics", baseDir);
+	if (!ensure_directory(out->topicsDir))
+	{
+		free(out->baseDir);
+		free(out->topicsDir);
+		free(out);
+		return NULL;
+	}
 
 	out->mutexFactory = mutexFactory;
 
@@ -34,7 +41,7 @@ void kl_context_close(KLContext *context)
 {
 	if (context)
 	{
-		kl_log("Closing context...\n");
+		kl_log("\nClosing context...");
 		for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
 		{
 			// close the context
@@ -47,6 +54,7 @@ void kl_context_close(KLContext *context)
 		free(context->baseDir);
 		free(context->topicsDir);
 		free(context);
+		kl_log("\nClosed context\n");
 	}
 }
 

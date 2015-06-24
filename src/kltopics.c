@@ -1,6 +1,8 @@
 
 #include "klprivate.h"
 
+#define ltell(fdes)		lseek((fdes), 0, SEEK_CUR)
+
 int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
 	for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
@@ -21,8 +23,38 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 	topic->refCount = 0;
 	topic->numMessages = 0;
 	topic->currOffset = 0;
-	topic->dataBuffer = kl_buffer_new(0);
-	topic->indexBuffer = kl_buffer_new(0);
+	// topic->dataBuffer = kl_buffer_new(0);
+	// topic->indexBuffer = kl_buffer_new(0);
+	char buffer[2048];
+
+	errno = 0;
+	sprintf(buffer, "%s/%s.data", context->topicsDir, name);
+	topic->dataFile = open(buffer, O_RDWR | O_CREAT, 0777);
+	if (topic->indexFile < 0)
+	{
+		kl_log("Unable to open data file. error: %s", strerror(errno));
+		return ;
+	}
+
+	errno = 0;
+	sprintf(buffer, "%s/%s.index", context->topicsDir, name);
+	topic->indexFile = open(buffer, O_RDWR | O_CREAT, 0777);
+	if (topic->indexFile < 0)
+	{
+		kl_log("Unable to open index file. error: %s", strerror(errno));
+		return ;
+	}
+
+	// from the index file gather the number of messages and the num
+	lseek(topic->indexFile, 0, SEEK_SET);
+	read(topic->indexFile, &topic->numMessages, sizeof(topic->numMessages));
+	read(topic->indexFile, &topic->currOffset, sizeof(topic->currOffset));
+	// go to where we can start writing to index file
+	lseek(topic->indexFile, topic->numMessages * sizeof(KLMessageInfo), SEEK_CUR);
+
+	// now go to the point where we can start writing data
+	lseek(topic->dataFile, topic->currOffset, SEEK_SET);
+	kl_log("\nOpening Topic (%s), Offset: %ld, Num Messages: %ld", topic->name, topic->currOffset, topic->numMessages);
 }
 
 void kl_topic_finalize(KLTopic *topic)
@@ -34,10 +66,10 @@ void kl_topic_finalize(KLTopic *topic)
 		topic->numMessages = 0;
 		topic->currOffset = 0;
 		free(topic->name); topic->name = NULL;
-		kl_buffer_destroy(topic->dataBuffer);
-		kl_buffer_destroy(topic->indexBuffer);
-		if (topic->dataFile != NULL) fclose(topic->dataFile); topic->dataFile = NULL;
-		if (topic->indexFile != NULL) fclose(topic->indexFile); topic->indexFile = NULL;
+		// kl_buffer_destroy(topic->dataBuffer);
+		// kl_buffer_destroy(topic->indexBuffer);
+		if (topic->dataFile != 0) close(topic->dataFile); topic->dataFile = 0;
+		if (topic->indexFile != 0) close(topic->indexFile); topic->indexFile = 0;
 	}
 }
 
@@ -118,10 +150,34 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 		info.offset = topic->currOffset;
 		info.index = topic->numMessages;
 		info.size = msgsize;
-		kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize), sizeof(msgsize));
-		kl_buffer_append(topic->dataBuffer, msg, msgsize);
-		kl_buffer_append(topic->indexBuffer, (const char *)(&info), sizeof(info));
-		topic->numMessages++;
+		info.timestamp = 0x10101010;
+
+		// write the actual data to the file
+		write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
+		write(topic->dataFile, msg, msgsize);
+		// sync the changes
+		fsync(topic->dataFile);
+
+		// write the message info first before updating the header
+		int nWritten = 0;
+		size_t headerSize = sizeof(topic->numMessages) + sizeof(topic->currOffset);
+		int result = lseek(topic->indexFile, headerSize + (topic->numMessages * sizeof(KLMessageInfo)), SEEK_SET);
+		nWritten = write(topic->indexFile, (const char *)(&info), sizeof(info));
+		// sync the changes
+		fsync(topic->indexFile);
+
+		// now write the header in the index file
+		size_t newNumMessages = topic->numMessages + 1;
+		size_t newOffset = sizeof(msgsize) + msgsize + topic->currOffset;
+		lseek(topic->indexFile, 0, SEEK_SET);
+		write(topic->indexFile, &newNumMessages, sizeof(newNumMessages));
+		write(topic->indexFile, &newOffset, sizeof(newOffset));
+		fsync(topic->indexFile);
+
+		topic->numMessages = newNumMessages;
+		topic->currOffset = newOffset;
+
+		// now see if these needs to be synced
 		KL_RWLOCK_UNLOCK(context->mutexFactory, context->rwLock);
 	}
 }

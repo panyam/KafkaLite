@@ -2,6 +2,8 @@
 #ifndef __KAFKA_LITE_FWD_DEFS_H__
 #define __KAFKA_LITE_FWD_DEFS_H__
 
+#include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
