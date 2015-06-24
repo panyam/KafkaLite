@@ -17,6 +17,9 @@ typedef KLContext * KLContextRef;
 typedef struct KLArray KLArray;
 typedef KLArray * KLArrayRef;
 
+typedef struct KLBuffer KLBuffer;
+typedef KLBuffer * KLBufferRef;
+
 typedef struct KLTopic KLTopic;
 typedef KLTopic * KLTopicRef;
 

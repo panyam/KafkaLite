@@ -20,10 +20,10 @@ int kl_topic_find_unlocked(KLContextRef context, const char *name)
 int kl_topic_find(KLContextRef context, const char *name)
 {
 	if (context->mutexFactory)
-		context->mutexFactory->MutexLock(context->topicListMutex);
+		context->mutexFactory->MutexLock(context->topicsMutex);
 	int index = kl_topic_find_unlocked(context, name);
 	if (context->mutexFactory)
-		context->mutexFactory->MutexUnlock(context->topicListMutex);
+		context->mutexFactory->MutexUnlock(context->topicsMutex);
 	return index;
 }
 

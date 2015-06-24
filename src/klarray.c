@@ -63,6 +63,7 @@ bool kl_array_ensure_capacity(KLArray *array, unsigned extraCapacity)
 	int newCapacity = array->count + extraCapacity;
  	if (array->capacity < newCapacity)
 	{
+		newCapacity *= 1.25;
 		array->buffer = realloc(array->buffer, newCapacity * array->elemSize);
 		array->capacity = newCapacity;
 	}

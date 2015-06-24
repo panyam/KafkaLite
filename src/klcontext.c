@@ -6,19 +6,20 @@
  * be stored. This is what is shared by all consumers and producers in a
  * system.
  */
-KLContext *kl_context_open(const char *basedir, KLMutexFactory *mutexFactory)
+KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
 {
-	if (!ensure_directory(basedir))
+	if (!ensure_directory(baseDir))
 		return NULL;
 	KLContext *out = calloc(1, sizeof(KLContext));
-	strcpy(out->basedir, basedir);
-	out->topicIdCounter = 0;
-	out->topics = kl_array_new(sizeof(KLTopic), 64);
+	out->baseDir = strdup(baseDir);
+	out->topicsDir = malloc(strlen(baseDir) + 1 + strlen("/topics"));
+	sprintf(out->topicsDir, "%s/topics", baseDir);
+
 	out->mutexFactory = mutexFactory;
+
+	out->topics = kl_array_new(sizeof(KLTopic), 32);
 	if (out->mutexFactory)
-	{
-		out->topicListMutex = out->mutexFactory->MutexNew(NULL);
-	}
+		out->topicsMutex = out->mutexFactory->MutexNew(NULL);
 	return out;
 }
 
@@ -29,7 +30,14 @@ KLContext *kl_context_open(const char *basedir, KLMutexFactory *mutexFactory)
 void kl_context_close(KLContext *context)
 {
 	if (context)
+	{
+		kl_array_destroy(context->topics);
+		if (context->mutexFactory)
+			context->mutexFactory->MutexDestroy(context->topicsMutex);
+		free(context->baseDir);
+		free(context->topicsDir);
 		free(context);
+	}
 }
 
 /**
@@ -37,5 +45,5 @@ void kl_context_close(KLContext *context)
  */
 const char *kl_context_basedir(KLContext *context)
 {
-	return context ? context->basedir : NULL;
+	return context ? context->baseDir : NULL;
 }

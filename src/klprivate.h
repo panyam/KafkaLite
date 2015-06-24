@@ -9,17 +9,17 @@ struct KLContext
 	/**
 	 * Base dir where all messages are written to.
 	 */
-	char basedir[PATH_MAX];
+	char *baseDir;
 
 	/**
-	 * List of topic IDs to maintain as topics are created.
+	 * Directory where topics are saved.
 	 */
-	unsigned long long topicIdCounter;
+	char *topicsDir;
 
 	/**
-	 * List of all open topics.
+	 * Name of the topic group.
 	 */
-	KLArray *topics;
+	const char *name;
 
 	/**
 	 * The factory to manage mutexes.
@@ -27,9 +27,14 @@ struct KLContext
 	KLMutexFactory *mutexFactory;
 
 	/**
-	 * The mutex to safeguard the topic list.
+	 * Topics in this group.
 	 */
-	void *topicListMutex;
+	KLArray *topics;
+
+	/**
+	 * The mutex to safeguard the list of topics in this group.
+	 */
+	void *topicsMutex;
 };
 
 struct KLTopic
@@ -53,6 +58,16 @@ struct KLTopic
 	 * Reference count of this topic.
 	 */
 	int refCount;
+
+	FILE *dataFile;
+	FILE *indexFile;
+
+	/**
+	 * Data is copied to this buffer and only flushed to disk if this buffer
+	 * is exceeded.
+	 */
+	KLBuffer *dataBuffer;
+	KLBuffer *indexBuffer;
 };
 
 #endif

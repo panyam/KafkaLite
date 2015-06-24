@@ -19,14 +19,13 @@ struct KLMessageInfo
 
 
 /**
- * Finds a topic by name and returns its index.
- */
-extern int kl_topic_find(KLContextRef context, const char *name);
-
-/**
- * Opens a new topic into which messages can be published.
- * If a topic is opened multiple times then the same topic
- * object is returned.
+ * Opens a new topic into which messages can be published.  If a topic is opened 
+ * multiple times then the same topic object is returned.  A topic can be assigned 
+ * to a particular group via the group parameter.  If this is NULL then it is 
+ * assigned to the default group.
+ *
+ * Topic names must be globally unique and the group only serves as a way to
+ * limit and control the level of concurrent writes to a particular group.
  */
 extern KLTopic *kl_topic_open(KLContextRef context, const char *name);
 
@@ -34,6 +33,11 @@ extern KLTopic *kl_topic_open(KLContextRef context, const char *name);
  * Closes a topic if it is opened.
  */
 extern void kl_topic_close(KLTopic *topic);
+
+/**
+ * Finds a topic by name and returns its index.
+ */
+extern int kl_topic_find(KLContextRef context, const char *name);
 
 /**
  * Publish a new message to a topic.

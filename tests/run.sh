@@ -1,7 +1,6 @@
 #!/bin/sh
 
-rm -f ../bld/kltests
-mkdir -p ../bld ; cd ../bld
+rm -rf ../bld ; mkdir -p ../bld ; cd ../bld
 gcc -Wall -std=c99 -g -c ../src/*.c
 ar -cvq libkafkalite.a *.o
 cd -
