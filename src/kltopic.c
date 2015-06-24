@@ -1,10 +1,7 @@
 
 #include "klprivate.h"
 
-/**
- * Finds a topic by name and returns its index.
- */
-int kl_topic_find(KLContextRef context, const char *name)
+int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
 	for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
 	{
@@ -18,6 +15,19 @@ int kl_topic_find(KLContextRef context, const char *name)
 }
 
 /**
+ * Finds a topic by name and returns its index.
+ */
+int kl_topic_find(KLContextRef context, const char *name)
+{
+	if (context->mutexFactory)
+		context->mutexFactory->MutexLock(context->topicListMutex);
+	int index = kl_topic_find_unlocked(context, name);
+	if (context->mutexFactory)
+		context->mutexFactory->MutexUnlock(context->topicListMutex);
+	return index;
+}
+
+/**
  * Opens a new topic into which messages can be published.
  * If a topic is opened multiple times then the same topic
  * object is returned.
@@ -27,7 +37,7 @@ KLTopic *kl_topic_open(KLContextRef context, const char *name)
 	// see if this topic is already opened
 	// if so then just increment its count
 	KLTopic *topic = NULL;
-	int index = kl_topic_find(context, name);
+	int index = kl_topic_find_unlocked(context, name);
 	if (index < 0)
 	{
 		topic = kl_array_insert_at(context->topics, -1);
@@ -52,7 +62,7 @@ void kl_topic_close(KLTopic *topic)
 	KLContextRef context = topic->context;
 	// see if this topic is already opened
 	// if so then just increment its count
-	int index = kl_topic_find(context, topic->name);
+	int index = kl_topic_find_unlocked(context, topic->name);
 	if (index >= 0)
 	{
 		topic = kl_array_element_at(context->topics, index);
@@ -63,3 +73,18 @@ void kl_topic_close(KLTopic *topic)
 		}
 	}
 }
+
+void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
+{
+	if (topic)
+	{
+	}
+}
+
+int kl_topic_message_count(KLTopic *topic)
+{
+	if (!topic)
+		return 0;
+	return 0;
+}
+

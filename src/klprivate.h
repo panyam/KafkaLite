@@ -20,6 +20,16 @@ struct KLContext
 	 * List of all open topics.
 	 */
 	KLArray *topics;
+
+	/**
+	 * The factory to manage mutexes.
+	 */
+	KLMutexFactory *mutexFactory;
+
+	/**
+	 * The mutex to safeguard the topic list.
+	 */
+	void *topicListMutex;
 };
 
 struct KLTopic
@@ -43,10 +53,6 @@ struct KLTopic
 	 * Reference count of this topic.
 	 */
 	int refCount;
-};
-
-struct KLMessageInfo
-{
 };
 
 #endif

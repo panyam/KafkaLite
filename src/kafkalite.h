@@ -6,6 +6,9 @@
 #include "klcontext.h"
 #include "klarray.h"
 #include "kltopic.h"
+#include "klmutex.h"
+#include "klutils.h"
+#include "klpthreadmutex.h"
 
 #endif
 

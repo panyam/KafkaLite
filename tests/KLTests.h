@@ -21,4 +21,6 @@
 using namespace CppUnit;
 using namespace std;
 
+#define TEST_DIR	"/tmp/kafka"
+
 #endif
