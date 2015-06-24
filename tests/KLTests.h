@@ -17,6 +17,7 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
 #include <netinet/in.h>
+#include <kafkalite.h>
 
 using namespace CppUnit;
 using namespace std;

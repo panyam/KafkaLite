@@ -3,6 +3,8 @@
 
 #define ltell(fdes)		lseek((fdes), 0, SEEK_CUR)
 
+void kl_topic_flush(KLTopic *topic);
+
 int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
 	for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
@@ -74,6 +76,10 @@ void kl_topic_finalize(KLTopic *topic)
 {
 	if (topic)
 	{
+		kl_log("\nClosing topic: %s", topic->name);
+		// flush the in mem data if necessary
+		kl_topic_flush(topic);
+
 		topic->context = NULL;
 		topic->refCount = 0;
 		topic->numMessages = 0;
@@ -163,8 +169,7 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 		info.offset = topic->currOffset;
 		info.size = msgsize;
 
-		size_t newNumMessages = topic->numMessages + 1;
-		size_t newOffset = sizeof(msgsize) + msgsize + topic->currOffset;
+		size_t payloadSize = sizeof(msgsize) + msgsize;
 		// info.index = topic->numMessages;
 		// info.timestamp = 0x10101010;
 
@@ -178,33 +183,35 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 			// write the message info first before updating the header
 			kl_buffer_append(topic->indexBuffer, (const char *)(&info), sizeof(info));
 
+			topic->numMessages++;
+			topic->currOffset += payloadSize;
+
 			size_t dataLength = kl_buffer_size(topic->dataBuffer);
 			if (dataLength > topic->flushThreshold)
 			{
 				// then flush it
-				write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
-				kl_buffer_reset(topic->dataBuffer);
-
-				size_t indexLength = kl_buffer_size(topic->indexBuffer);
-				write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
-				kl_buffer_reset(topic->indexBuffer);
-
-				// now write the header in the index file
-				lseek(topic->metadataFile, 0, SEEK_SET);
-				write(topic->metadataFile, &newNumMessages, sizeof(newNumMessages));
-				write(topic->metadataFile, &newOffset, sizeof(newOffset));
+				kl_topic_flush(topic);
 			}
 		} else {
+			// write the message
 			write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
 			write(topic->dataFile, msg, msgsize);
 
-			// write the message info first before updating the header
+			// now write the message info before updating the header
 			write(topic->indexFile, (const char *)(&info), sizeof(info));
 
-			// now write the header in the index file
+			// now write the header in the metadata file
 			lseek(topic->metadataFile, 0, SEEK_SET);
+
+
+			size_t newNumMessages = topic->numMessages + 1;
+			size_t newOffset = topic->currOffset + payloadSize;
+
 			write(topic->metadataFile, &newNumMessages, sizeof(newNumMessages));
 			write(topic->metadataFile, &newOffset, sizeof(newOffset));
+
+			topic->numMessages++;
+			topic->currOffset += payloadSize;
 		}
 
 		// sync the changes
@@ -212,11 +219,27 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 		// fsync(topic->indexFile);
 		// fsync(topic->metadataFile);
 
-		topic->numMessages = newNumMessages;
-		topic->currOffset = newOffset;
-
 		// now see if these needs to be synced
 		KL_RWLOCK_UNLOCK(context->mutexFactory, context->topicRWLock);
+	}
+}
+
+void kl_topic_flush(KLTopic *topic)
+{
+	size_t dataLength = kl_buffer_size(topic->dataBuffer);
+	if (dataLength > 0)
+	{
+		write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
+		kl_buffer_reset(topic->dataBuffer);
+
+		size_t indexLength = kl_buffer_size(topic->indexBuffer);
+		write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
+		kl_buffer_reset(topic->indexBuffer);
+
+		// now write the header in the index file
+		lseek(topic->metadataFile, 0, SEEK_SET);
+		write(topic->metadataFile, &topic->numMessages, sizeof(topic->numMessages));
+		write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
 	}
 }
 

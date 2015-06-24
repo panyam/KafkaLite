@@ -1,5 +1,6 @@
 
 #include "KLContextTests.h"
+#include "KLTopicTests.h"
 
 int main(int argc, char* argv[])
 {
@@ -15,9 +16,16 @@ int main(int argc, char* argv[])
     testresult.addListener (&progress);
  
     // insert test-suite at test-runner by registry
-    CPPUNIT_NS::TestRunner testrunner;
-    testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
-    testrunner.run(testresult);
+	bool alltests = false;
+	if (alltests)
+	{
+    	CPPUNIT_NS::TestRunner testrunner;
+    	testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
+    	testrunner.run(testresult);
+	} else {
+		CppUnit::TestCaller<KLTopicTests> test("test_kl_topic_restart", &KLTopicTests::test_kl_topic_restart);
+		test.run(&testresult);
+	}
  
     // output results in compiler-format
     CPPUNIT_NS::CompilerOutputter compileroutputter(&collectedresults, std::cerr);
