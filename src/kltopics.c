@@ -159,10 +159,9 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 		fsync(topic->dataFile);
 
 		// write the message info first before updating the header
-		int nWritten = 0;
 		size_t headerSize = sizeof(topic->numMessages) + sizeof(topic->currOffset);
-		int result = lseek(topic->indexFile, headerSize + (topic->numMessages * sizeof(KLMessageInfo)), SEEK_SET);
-		nWritten = write(topic->indexFile, (const char *)(&info), sizeof(info));
+		lseek(topic->indexFile, headerSize + (topic->numMessages * sizeof(KLMessageInfo)), SEEK_SET);
+		write(topic->indexFile, (const char *)(&info), sizeof(info));
 		// sync the changes
 		fsync(topic->indexFile);
 

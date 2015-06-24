@@ -1,5 +1,6 @@
 
 #include "klprivate.h"
+#include <ftw.h>
 
 bool ensure_directory(const char *path)
 {
@@ -21,3 +22,16 @@ bool ensure_directory(const char *path)
 	}
 	return true;
 }
+
+int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+{
+    int rv = remove(fpath);
+    if (rv) perror(fpath);
+    return rv;
+}
+
+void rmdirs(const char *path)
+{
+	nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+

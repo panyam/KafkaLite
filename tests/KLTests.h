@@ -23,4 +23,14 @@ using namespace std;
 
 #define TEST_DIR	"/tmp/kafka"
 
+class KLBaseTest : public CppUnit::TestFixture
+{
+	CPPUNIT_TEST_SUITE(KLBaseTest);
+	CPPUNIT_TEST_SUITE_END();
+
+public:
+	virtual void setUp(void) { }
+	virtual void tearDown(void) { }
+};
+
 #endif

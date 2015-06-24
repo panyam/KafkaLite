@@ -10,10 +10,18 @@ class KLTopicTests : public CppUnit::TestFixture
 	CPPUNIT_TEST(test_kl_topic_publish);
 	CPPUNIT_TEST(test_kl_topic_restart);
 	CPPUNIT_TEST_SUITE_END();
+public:
+	KLContext *context;
 
 public:
-	virtual void setUp(void) { }
-	virtual void tearDown(void) { }
+	virtual void setUp(void) {
+		// remove the test dir
+		rmdirs(TEST_DIR);
+		context = kl_context_open(TEST_DIR, NULL);
+	}
+	virtual void tearDown(void) { 
+		kl_context_close(context);
+	}
 
 	void test_kl_topic_publish();
 	void test_kl_topic_restart();
