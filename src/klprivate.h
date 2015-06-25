@@ -32,9 +32,9 @@ struct KLContext
 	void *topicsMutex;
 
 	/**
-	 * RW Lock on accesses to all topics in the group.
+	 * A single lock for the file position variables on all topics in the group.
 	 */
-	void *topicRWLock;
+	void *filePosLock;
 };
 
 struct KLTopic

@@ -36,14 +36,14 @@ void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory)
 	{
 		// remove old mutexes
 		ctx->mutexFactory->MutexDestroy(ctx->topicsMutex);
-		ctx->mutexFactory->RWLockDestroy(ctx->topicRWLock);
+		ctx->mutexFactory->MutexDestroy(ctx->filePosLock);
 	}
 	ctx->mutexFactory = mutexFactory;
 	if (ctx->mutexFactory)
 	{
 		// create new mutexes
 		ctx->topicsMutex = ctx->mutexFactory->MutexNew(NULL);
-		ctx->topicRWLock = ctx->mutexFactory->RWLockNew(NULL);
+		ctx->filePosLock = ctx->mutexFactory->MutexNew(NULL);
 	}
 }
 

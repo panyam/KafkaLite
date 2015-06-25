@@ -164,7 +164,7 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 	{
 		KLContextRef context = topic->context;
 
-		KL_RWLOCK_WRLOCK(context->mutexFactory, context->topicRWLock);
+		KL_MUTEX_LOCK(context->mutexFactory, context->filePosLock);
 		KLMessageInfo info;
 		info.offset = topic->currOffset;
 		info.size = msgsize;
@@ -222,7 +222,7 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 		// fsync(topic->metadataFile);
 
 		// now see if these needs to be synced
-		KL_RWLOCK_UNLOCK(context->mutexFactory, context->topicRWLock);
+		KL_MUTEX_UNLOCK(context->mutexFactory, context->filePosLock);
 	}
 }
 
@@ -249,9 +249,9 @@ int kl_topic_message_count(KLTopic *topic)
 {
 	if (!topic)
 		return 0;
-	KL_RWLOCK_RDLOCK(topic->context->mutexFactory, topic->context->topicRWLock);
+	KL_MUTEX_LOCK(topic->context->mutexFactory, topic->context->filePosLock);
 	int out = topic->numMessages;
-	KL_RWLOCK_UNLOCK(topic->context->mutexFactory, topic->context->topicRWLock);
+	KL_MUTEX_UNLOCK(topic->context->mutexFactory, topic->context->filePosLock);
 	return out;
 }
 

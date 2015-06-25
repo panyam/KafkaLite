@@ -1,6 +1,22 @@
 
 #include "klprivate.h"
 
+// We only need read access to the data.   Two ways of doing iterators:
+//
+// 1. Do a repeated seek/read pattern by putting a lock around them for
+// concurrent access - this is ok in a single threaded mode and requires 0
+// memory.
+//
+// 2. But with multiple consumers, doing seeks each time and having to lock 
+// till a read finishes is going to bottleneck the reads.  Instead use a
+// memory mapped files so that the consumers can read data in parallel.
+// 
+// Obviously this is significantly harder to manage.  There needs to be a limit
+// on how many pages can be in memory across all the consumers.  If the
+// consumers in sync this is easy to maintain.  If they are going at different
+// rates this needs to be managed so that we dont start getting too many
+// pages in memory.   
+
 /**
  * Creates a new iterator over the topic from a given message index.
  */
