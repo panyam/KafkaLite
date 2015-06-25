@@ -1,7 +1,7 @@
 
-#include "KLContextTests.h"
-#include "KLTopicTests.h"
-#include "KLIteratorTests.h"
+#include "klcontexttests.h"
+#include "kltopictests.h"
+#include "kliteratortests.h"
 
 int main(int argc, char* argv[])
 {

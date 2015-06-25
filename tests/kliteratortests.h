@@ -2,7 +2,7 @@
 #ifndef __KL_TOPIC_TESTS_H__
 #define __KL_TOPIC_TESTS_H__
 
-#include "KLTests.h"
+#include "kltests.h"
 
 class KLIteratorTests : public CppUnit::TestFixture
 {
