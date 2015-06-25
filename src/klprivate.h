@@ -30,11 +30,6 @@ struct KLContext
 	 * The mutex to safeguard the list of topics in this group.
 	 */
 	void *topicsMutex;
-
-	/**
-	 * A single lock for the file position variables on all topics in the group.
-	 */
-	void *filePosLock;
 };
 
 struct KLTopic
@@ -92,6 +87,11 @@ struct KLTopic
 	 * Reference count of this topic.
 	 */
 	int refCount;
+
+	/**
+	 * A lock for the file positions for each of the topic files.
+	 */
+	void *filePosLock;
 };
 
 /**
@@ -116,6 +116,7 @@ struct KLIterator
 	 */
 	KLMessageInfo currMessageInfo;
 };
+
 
 #endif
 

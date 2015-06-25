@@ -40,7 +40,7 @@ void KLTopicTests::test_kl_topic_publish_load()
  */
 void KLTopicTests::test_kl_topic_publish_load_with_locking()
 {
-	kl_context_set_mutex_factory(context, kl_pthread_mutex_factory());
+	context = kl_context_open(TEST_DIR, kl_pthread_mutex_factory());
 	KLTopic *topic = kl_topic_open(context, "topic");
 	const char *buffer = "Hello World 1234567890";
 	size_t buffsize = strlen(buffer);

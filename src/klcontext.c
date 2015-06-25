@@ -1,6 +1,8 @@
 
 #include "klprivate.h"
 
+static void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory);
+
 /**
  * Creates a new KL context starting at a particular folder where all data will
  * be stored. This is what is shared by all consumers and producers in a
@@ -36,14 +38,12 @@ void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory)
 	{
 		// remove old mutexes
 		ctx->mutexFactory->MutexDestroy(ctx->topicsMutex);
-		ctx->mutexFactory->MutexDestroy(ctx->filePosLock);
 	}
 	ctx->mutexFactory = mutexFactory;
 	if (ctx->mutexFactory)
 	{
 		// create new mutexes
 		ctx->topicsMutex = ctx->mutexFactory->MutexNew(NULL);
-		ctx->filePosLock = ctx->mutexFactory->MutexNew(NULL);
 	}
 }
 

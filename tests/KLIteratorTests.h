@@ -8,6 +8,7 @@ class KLIteratorTests : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(KLIteratorTests);
 	CPPUNIT_TEST(test_kl_iterator_new);
+	CPPUNIT_TEST(test_kl_iterator_consume);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	KLContext *context;
@@ -18,6 +19,7 @@ public:
 	virtual void tearDown(void) { kl_context_close(context); }
 
 	void test_kl_iterator_new();
+	void test_kl_iterator_consume();
 };
 
 #endif

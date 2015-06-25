@@ -10,17 +10,6 @@ extern "C" {
 #endif
 
 /**
- * Info about a message.
- */
-struct KLMessageInfo
-{
-	unsigned offset;
-	unsigned size;
-	unsigned timestamp;
-};
-
-
-/**
  * Opens a new topic into which messages can be published.  If a topic is opened 
  * multiple times then the same topic object is returned.  A topic can be assigned 
  * to a particular group via the group parameter.  If this is NULL then it is 
@@ -64,9 +53,19 @@ extern void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *
 extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *out, int outCount);
 
 /**
- * Get a bunch of messages beginning at a particular index.
+ * Get a list of messages beginning at a particular index.
+ * Issues to consider:
+ * If an index is specified then get_message_info nees to be called again to 
+ * get the offset and size. However, this is a duplicate call as most likely 
+ * the offset and size were fetched by a previous call to get_message_info.  
+ * To prevent this an offset could be pass the offset but there is no 
+ * way to validate this.  
+ * Instead the message info (which is an opaque pointer) is passed which will
+ * indicate where to read from.
+ *
+ * May be make this a private API - so only consumers have access to this.
  */
-extern int kl_topic_get_messages(KLTopic *topic, int index, char *output, int outCount);
+extern int kl_topic_get_messages(KLTopic *topic, KLMessageInfo *firstMessage, KLBuffer *output, int outCount);
 
 extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
 extern void kl_topic_finalize(KLTopic *topic);
