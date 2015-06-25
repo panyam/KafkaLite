@@ -4,6 +4,7 @@
 #define ltell(fdes)		lseek((fdes), 0, SEEK_CUR)
 
 void kl_topic_flush(KLTopic *topic);
+void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize);
 
 int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
@@ -23,7 +24,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 	topic->context = context;
 	topic->name = strdup(name);
 	topic->refCount = 0;
-	topic->numMessages = 0;
+	topic->currIndex = 0;
 	topic->currOffset = 0;
 	topic->dataBuffer = kl_buffer_new(0);
 	topic->indexBuffer = kl_buffer_new(0);
@@ -59,17 +60,17 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 
 	// from the index file gather the number of messages and the num
 	lseek(topic->metadataFile, 0, SEEK_SET);
-	read(topic->metadataFile, &topic->numMessages, sizeof(topic->numMessages));
+	read(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
 	read(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
 
 	// go to where we can start writing to index file 
 	// - only need to do this once per open
-	lseek(topic->indexFile, topic->numMessages * sizeof(KLMessageInfo), SEEK_SET);
+	lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageInfo), SEEK_SET);
 
 	// now go to the point where we can start writing data
 	// - only need to do this once per open
 	lseek(topic->dataFile, topic->currOffset, SEEK_SET);
-	kl_log("\nOpening Topic (%s), Offset: %ld, Num Messages: %ld", topic->name, topic->currOffset, topic->numMessages);
+	kl_log("\nOpening Topic (%s), Offset: %ld, Num Messages: %ld", topic->name, topic->currOffset, topic->currIndex);
 }
 
 void kl_topic_finalize(KLTopic *topic)
@@ -82,7 +83,7 @@ void kl_topic_finalize(KLTopic *topic)
 
 		topic->context = NULL;
 		topic->refCount = 0;
-		topic->numMessages = 0;
+		topic->currIndex = 0;
 		topic->currOffset = 0;
 		free(topic->name); topic->name = NULL;
 		kl_buffer_destroy(topic->dataBuffer);
@@ -158,71 +159,111 @@ bool kl_topic_close(KLTopic *topic)
 	return alive;
 }
 
+/**
+ * Get the info about count number of messages starting from a particular message index.
+ * The output buffer "out" must point to a buffer that has enough space for
+ * outCount KLMessageInfo objects.
+ */
+int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *out, int outCount)
+{
+	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, context->filePosLock);
+	int endIndex = outCount + index;
+	if (endIndex >= topic->currIndex)
+	{
+		outCount -= (1 + endIndex - topic->currIndex);
+		endIndex = outCount + index;
+	}
+
+	if (endIndex > topic->flushedAtIndex)
+	{
+		// flush if consumption requires a simple read (keeps it simple)
+		kl_topic_flush(topic);
+	}
+	// see what the size is
+	lseek(topic->indexFile, index * sizeof(KLMessageInfo), SEEK_SET);
+	// read the message info
+	read(topic->indexFile, out, outCount * sizeof(KLMessageInfo));
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->filePosLock);
+	return outCount;
+}
+
+/**
+ * Publish a single message.
+ */
 void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 {
-	if (topic)
+	if (!topic) return ;
+	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, context->filePosLock);
+	kl_topic_publish_single(topic, msg, msgsize);
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->filePosLock);
+}
+
+/**
+ * Publish a batch of messages to the topic.
+ */
+void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes)
+{
+	if (!topic) return ;
+	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, context->filePosLock);
+	for (int i = 0;i < numMessages;i++)
 	{
-		KLContextRef context = topic->context;
+		kl_topic_publish_single(topic, msgs[i], msgsizes[i]);
+	}
+	KL_MUTEX_UNLOCK(context->mutexFactory, context->filePosLock);
+}
 
-		KL_MUTEX_LOCK(context->mutexFactory, context->filePosLock);
-		KLMessageInfo info;
-		info.offset = topic->currOffset;
-		info.size = msgsize;
+void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
+{
+	KLMessageInfo info;
+	info.offset = topic->currOffset;
+	info.size = msgsize;
 
-		size_t payloadSize = sizeof(msgsize) + msgsize;
-		// info.index = topic->numMessages;
-		// info.timestamp = 0x10101010;
+	size_t payloadSize = sizeof(msgsize) + msgsize;
+	info.timestamp = 0;
+	// info.index = topic->currIndex;
 
-		// write the actual data to the file
-		if (topic->dataBuffer)
+	// write the actual data to the file
+	if (topic->dataBuffer)
+	{
+		// write to the buffer first
+		kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize), sizeof(msgsize));
+		kl_buffer_append(topic->dataBuffer, msg, msgsize);
+
+		// write the message info first before updating the header
+		kl_buffer_append(topic->indexBuffer, (const char *)(&info), sizeof(info));
+
+		topic->currIndex++;
+		topic->currOffset += payloadSize;
+
+		size_t dataLength = kl_buffer_size(topic->dataBuffer);
+		if (dataLength > topic->flushThreshold)
 		{
-			// write to the buffer first
-			kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize), sizeof(msgsize));
-			kl_buffer_append(topic->dataBuffer, msg, msgsize);
-
-			// write the message info first before updating the header
-			kl_buffer_append(topic->indexBuffer, (const char *)(&info), sizeof(info));
-
-			topic->numMessages++;
-			topic->currOffset += payloadSize;
-
-			size_t dataLength = kl_buffer_size(topic->dataBuffer);
-			if (dataLength > topic->flushThreshold)
-			{
-				// then flush it
-				kl_topic_flush(topic);
-			}
-		} else {
-			// write the message
-			lseek(topic->dataFile, topic->currOffset, SEEK_SET);
-			write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
-			write(topic->dataFile, msg, msgsize);
-
-			// now write the message info before updating the header
-			lseek(topic->indexFile, topic->numMessages * sizeof(KLMessageInfo), SEEK_SET);
-			write(topic->indexFile, (const char *)(&info), sizeof(info));
-
-			// now write the header in the metadata file
-			lseek(topic->metadataFile, 0, SEEK_SET);
-
-
-			size_t newNumMessages = topic->numMessages + 1;
-			size_t newOffset = topic->currOffset + payloadSize;
-
-			write(topic->metadataFile, &newNumMessages, sizeof(newNumMessages));
-			write(topic->metadataFile, &newOffset, sizeof(newOffset));
-
-			topic->numMessages++;
-			topic->currOffset += payloadSize;
+			// then flush it
+			kl_topic_flush(topic);
 		}
+	} else {
+		// write the message
+		lseek(topic->dataFile, topic->currOffset, SEEK_SET);
+		write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
+		write(topic->dataFile, msg, msgsize);
 
-		// sync the changes
-		// fsync(topic->dataFile);
-		// fsync(topic->indexFile);
-		// fsync(topic->metadataFile);
+		// now write the message info before updating the header
+		lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageInfo), SEEK_SET);
+		write(topic->indexFile, (const char *)(&info), sizeof(info));
 
-		// now see if these needs to be synced
-		KL_MUTEX_UNLOCK(context->mutexFactory, context->filePosLock);
+		topic->currIndex++;
+		topic->currOffset += payloadSize;
+
+		// now write the header in the metadata file
+		lseek(topic->metadataFile, 0, SEEK_SET);
+		write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
+		write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
+
+		topic->flushedAtIndex = topic->currIndex;
+		topic->flushedAtOffset = topic->currOffset;
 	}
 }
 
@@ -240,8 +281,11 @@ void kl_topic_flush(KLTopic *topic)
 
 		// now write the header in the index file
 		lseek(topic->metadataFile, 0, SEEK_SET);
-		write(topic->metadataFile, &topic->numMessages, sizeof(topic->numMessages));
+		write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
 		write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
+
+		topic->flushedAtIndex = topic->currIndex;
+		topic->flushedAtOffset = topic->currOffset;
 	}
 }
 
@@ -250,7 +294,7 @@ int kl_topic_message_count(KLTopic *topic)
 	if (!topic)
 		return 0;
 	KL_MUTEX_LOCK(topic->context->mutexFactory, topic->context->filePosLock);
-	int out = topic->numMessages;
+	int out = topic->currIndex;
 	KL_MUTEX_UNLOCK(topic->context->mutexFactory, topic->context->filePosLock);
 	return out;
 }

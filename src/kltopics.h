@@ -42,20 +42,31 @@ extern bool kl_topic_close(KLTopic *topic);
 extern int kl_topic_find(KLContextRef context, const char *name);
 
 /**
- * Publish a new message to a topic.
+ * Return the number of messages in the topic.
+ */
+extern int kl_topic_message_count(KLTopic *topic);
+
+/**
+ * Publish a single message to the topic.
  */
 extern void kl_topic_publish(KLTopic *topic, const char *message, size_t msgsize);
 
 /**
- * Returns the information about a particular message at given offset for a
- * particular topic.
+ * Publish a batch of messages to the topic.
  */
-extern void kl_topic_message_info(KLTopic *topic, size_t offset, KLMessageInfo *msginfo);
+extern void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes);
 
 /**
- * Return the number of messages in the topic.
+ * Get the info about count number of messages starting from a particular message index.
+ * The output buffer "out" must point to a buffer that has enough space for
+ * outCount KLMessageInfo objects.
  */
-extern int kl_topic_message_count(KLTopic *topic);
+extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *out, int outCount);
+
+/**
+ * Get a bunch of messages beginning at a particular index.
+ */
+extern int kl_topic_get_messages(KLTopic *topic, int index, char *output, int outCount);
 
 extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
 extern void kl_topic_finalize(KLTopic *topic);
