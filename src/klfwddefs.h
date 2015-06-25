@@ -41,6 +41,8 @@ typedef KLMutex * KLMutexRef;
 typedef struct KLMutexFactory KLMutexFactory;
 typedef KLMutexFactory * KLMutexFactoryRef;
 
+typedef struct KLIterator KLIterator;
+typedef KLIterator * KLIteratorRef;
 
 #endif
 

@@ -194,10 +194,12 @@ void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 			}
 		} else {
 			// write the message
+			lseek(topic->dataFile, topic->currOffset, SEEK_SET);
 			write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
 			write(topic->dataFile, msg, msgsize);
 
 			// now write the message info before updating the header
+			lseek(topic->indexFile, topic->numMessages * sizeof(KLMessageInfo), SEEK_SET);
 			write(topic->indexFile, (const char *)(&info), sizeof(info));
 
 			// now write the header in the metadata file

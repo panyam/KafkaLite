@@ -1,6 +1,7 @@
 
 #include "KLContextTests.h"
 #include "KLTopicTests.h"
+#include "KLIteratorTests.h"
 
 int main(int argc, char* argv[])
 {
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
     testresult.addListener (&progress);
  
     // insert test-suite at test-runner by registry
-	bool alltests = false;
+	bool alltests = true;
 	if (alltests)
 	{
     	CPPUNIT_NS::TestRunner testrunner;

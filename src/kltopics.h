@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+/**
+ * Info about a message.
+ */
 struct KLMessageInfo
 {
 	unsigned offset;

@@ -84,5 +84,28 @@ struct KLTopic
 	int refCount;
 };
 
+/**
+ * Topic iterators.
+ */
+struct KLIterator
+{
+	KLTopic *topic;
+
+	/**
+	 * Current offset pointed by the interator.
+	 */
+	size_t currIndex;
+
+	/**
+	 * Current offset of the iterator
+	 */
+	size_t currOffset;
+
+	/**
+	 * Info about the current message.
+	 */
+	KLMessageInfo currMessageInfo;
+};
+
 #endif
 

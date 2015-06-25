@@ -8,6 +8,7 @@
 #include "klbuffer.h"
 #include "kltopics.h"
 #include "klutils.h"
+#include "kliterator.h"
 #include "klconcurrency.h"
 #include "klpthreadmutex.h"
 
