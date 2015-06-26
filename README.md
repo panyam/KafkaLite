@@ -57,7 +57,8 @@ Coming soon - packaging and brewing it up!
 	
 	This appends the message to the topic.  The messages are very simple and it does not 
 	matter what the content's format or structure is.  (*TODO*: Should a messageType (int)
-	also be allowed in the publishing to allow easy and simple filtering during consumption?).
+	also be allowed in the publishing to allow easy and simple filtering during consumption 
+	without incurring a marshalling cost?).
 	
 6. Verify and/or Consume messages
 
