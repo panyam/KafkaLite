@@ -23,7 +23,7 @@ extern "C" {
 /** 
  * A factory for managing platform specific concurrency primitives.
  */
-struct KLMutexFactory
+struct KLLockManager
 {
 	void *(*MutexNew)(void *data);
 	void (*MutexDestroy)(void *data);

@@ -1,14 +1,14 @@
 
 #include "klprivate.h"
 
-static void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory);
+static void kl_context_set_mutex_factory(KLContext *ctx, KLLockManager *lockManager);
 
 /**
  * Creates a new KL context starting at a particular folder where all data will
  * be stored. This is what is shared by all consumers and producers in a
  * system.
  */
-KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
+KLContext *kl_context_open(const char *baseDir, KLLockManager *lockManager)
 {
 	if (!ensure_directory(baseDir))
 		return NULL;
@@ -25,25 +25,25 @@ KLContext *kl_context_open(const char *baseDir, KLMutexFactory *mutexFactory)
 	}
 
 	out->topics = kl_array_new(sizeof(KLTopic), 32);
-	kl_context_set_mutex_factory(out, mutexFactory);
+	kl_context_set_mutex_factory(out, lockManager);
 	return out;
 }
 
 /**
  * Sets the mutex factory.
  */
-void kl_context_set_mutex_factory(KLContext *ctx, KLMutexFactory *mutexFactory)
+void kl_context_set_mutex_factory(KLContext *ctx, KLLockManager *lockManager)
 {
-	if (ctx->mutexFactory)
+	if (ctx->lockManager)
 	{
 		// remove old mutexes
-		ctx->mutexFactory->MutexDestroy(ctx->topicsMutex);
+		ctx->lockManager->MutexDestroy(ctx->topicsMutex);
 	}
-	ctx->mutexFactory = mutexFactory;
-	if (ctx->mutexFactory)
+	ctx->lockManager = lockManager;
+	if (ctx->lockManager)
 	{
 		// create new mutexes
-		ctx->topicsMutex = ctx->mutexFactory->MutexNew(NULL);
+		ctx->topicsMutex = ctx->lockManager->MutexNew(NULL);
 	}
 }
 

@@ -17,9 +17,9 @@ struct KLContext
 	char *topicsDir;
 
 	/**
-	 * The factory to manage mutexes.
+	 * The factory to manage locks etc.
 	 */
-	KLMutexFactory *mutexFactory;
+	KLLockManager *lockManager;
 
 	/**
 	 * Topics in this group.

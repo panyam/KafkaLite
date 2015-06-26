@@ -38,8 +38,8 @@ typedef KLMessage * KLMessageRef;
 typedef struct KLMutex KLMutex;
 typedef KLMutex * KLMutexRef;
 
-typedef struct KLMutexFactory KLMutexFactory;
-typedef KLMutexFactory * KLMutexFactoryRef;
+typedef struct KLLockManager KLLockManager;
+typedef KLLockManager * KLLockManagerRef;
 
 typedef struct KLIterator KLIterator;
 typedef KLIterator * KLIteratorRef;

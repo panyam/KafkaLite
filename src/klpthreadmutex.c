@@ -72,19 +72,19 @@ void kl_pthread_rwlock_rdunlock(void *data)
 	pthread_rwlock_unlock((pthread_rwlock_t *)data);
 }
 
-KLMutexFactory *kl_pthread_mutex_factory()
+KLLockManager *kl_pthread_mutex_manager()
 {
-	KLMutexFactory *factory = calloc(1, sizeof(KLMutexFactory));
-	factory->MutexNew = kl_pthread_mutex_new;
-	factory->MutexDestroy = kl_pthread_mutex_destroy;
-	factory->MutexLock = kl_pthread_mutex_lock;
-	factory->MutexUnlock = kl_pthread_mutex_unlock;
+	KLLockManager *manager = calloc(1, sizeof(KLLockManager));
+	manager->MutexNew = kl_pthread_mutex_new;
+	manager->MutexDestroy = kl_pthread_mutex_destroy;
+	manager->MutexLock = kl_pthread_mutex_lock;
+	manager->MutexUnlock = kl_pthread_mutex_unlock;
 
-	factory->RWLockNew = kl_pthread_rwlock_new;
-	factory->RWLockDestroy = kl_pthread_rwlock_destroy;
-	factory->RWLockReadLock = kl_pthread_rwlock_rdlock;
-	factory->RWLockWriteLock = kl_pthread_rwlock_wrlock;
-	factory->RWLockUnlock = kl_pthread_rwlock_rdunlock;
+	manager->RWLockNew = kl_pthread_rwlock_new;
+	manager->RWLockDestroy = kl_pthread_rwlock_destroy;
+	manager->RWLockReadLock = kl_pthread_rwlock_rdlock;
+	manager->RWLockWriteLock = kl_pthread_rwlock_wrlock;
+	manager->RWLockUnlock = kl_pthread_rwlock_rdunlock;
 
-	return factory;
+	return manager;
 }

@@ -33,7 +33,7 @@ void KLTopicTests::test_kl_topic_publish_load()
  */
 void KLTopicTests::test_kl_topic_publish_load_with_locking()
 {
-	context = kl_context_open(TEST_DIR, kl_pthread_mutex_factory());
+	context = kl_context_open(TEST_DIR, kl_pthread_mutex_manager());
 	KLTopic *topic = kl_topic_open(context, "topic");
 	long long timeTaken = publishMessages(topic, NUM_MESSAGES, 0, false);
 	kl_log("\nElapsed Time for %ld messages: %lld", NUM_MESSAGES, timeTaken);

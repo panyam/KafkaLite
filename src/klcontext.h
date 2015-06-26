@@ -13,7 +13,7 @@ extern "C" {
  * be stored.   This is what is shared by all consumers and producers in a
  * system.
  */
-extern KLContext *kl_context_open(const char *basedir, KLMutexFactory *mutexFactory);
+extern KLContext *kl_context_open(const char *basedir, KLLockManager *lockManager);
 
 /**
  * Closes a KL context and is no longer usable by the consumers and the producers.
