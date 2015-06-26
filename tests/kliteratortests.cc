@@ -28,11 +28,6 @@ void KLIteratorTests::test_kl_iterator_new()
  */
 void KLIteratorTests::test_kl_iterator_consume()
 {
-	kl_context_close(context);
-	rmdirs("/tmp/kafka2"); context = kl_context_open("/tmp/kafka2", NULL);
-	topic = kl_topic_open(context, "topic");
-	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX, true);
-
 	// buffer to store the message
 	KLBuffer *msgbuffer = kl_buffer_new(512 * 512);
 
