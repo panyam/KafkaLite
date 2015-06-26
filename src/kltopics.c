@@ -4,7 +4,7 @@
 #define ltell(fdes)		lseek((fdes), 0, SEEK_CUR)
 
 void kl_topic_flush(KLTopic *topic);
-void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize);
+size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize);
 
 int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
@@ -26,8 +26,8 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 	topic->refCount = 0;
 	topic->currIndex = 0;
 	topic->currOffset = 0;
-	topic->dataBuffer = kl_buffer_new(0);
-	topic->indexBuffer = kl_buffer_new(0);
+	topic->dataBuffer = kl_buffer_new(32000);
+	topic->indexBuffer = kl_buffer_new(512 * 512);
 	topic->flushThreshold = 100000;		// flush from memory to disk once data in mem exceeds this
 	topic->filePosLock = KL_MUTEX_NEW(context->mutexFactory, NULL);
 
@@ -166,31 +166,34 @@ bool kl_topic_close(KLTopic *topic)
 /**
  * Publish a single message.
  */
-void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
+size_t kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 {
-	if (!topic) return ;
+	if (!topic) return 0;
 	KLContextRef context = topic->context;
 	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
-	kl_topic_publish_single(topic, msg, msgsize);
+	size_t out = kl_topic_publish_single(topic, msg, msgsize);
 	KL_MUTEX_UNLOCK(context->mutexFactory, topic->filePosLock);
+	return out;
 }
 
 /**
  * Publish a batch of messages to the topic.
  */
-void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes)
+size_t kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes)
 {
-	if (!topic) return ;
+	if (!topic) return 0;
 	KLContextRef context = topic->context;
 	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
+	size_t out = 0;
 	for (int i = 0;i < numMessages;i++)
 	{
-		kl_topic_publish_single(topic, msgs[i], msgsizes[i]);
+		out = kl_topic_publish_single(topic, msgs[i], msgsizes[i]);
 	}
 	KL_MUTEX_UNLOCK(context->mutexFactory, topic->filePosLock);
+	return out;
 }
 
-void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
+size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 {
 	KLMessageHeader info;
 	info.offset = topic->currOffset;
@@ -236,6 +239,7 @@ void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 	// if we have not flushed in while then do it
 	if (unflushedLength > topic->flushThreshold)
 		kl_topic_flush(topic);
+	return topic->currOffset;
 }
 
 /**
@@ -248,10 +252,12 @@ void kl_topic_flush(KLTopic *topic)
 		size_t dataLength = kl_buffer_size(topic->dataBuffer);
 		if (dataLength > 0)
 		{
+			lseek(topic->dataFile, topic->flushedAtOffset, SEEK_SET);
 			write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
 			kl_buffer_reset(topic->dataBuffer);
 
 			size_t indexLength = kl_buffer_size(topic->indexBuffer);
+			lseek(topic->indexFile, topic->flushedAtIndex * sizeof(KLMessageHeader), SEEK_SET);
 			write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
 			kl_buffer_reset(topic->indexBuffer);
 
@@ -259,8 +265,11 @@ void kl_topic_flush(KLTopic *topic)
 			lseek(topic->metadataFile, 0, SEEK_SET);
 			write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
 			write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
-
 		}
+	} else {
+		fsync(topic->dataFile);
+		fsync(topic->indexFile);
+		fsync(topic->metadataFile);
 	}
 	topic->flushedAtIndex = topic->currIndex;
 	topic->flushedAtOffset = topic->currOffset;

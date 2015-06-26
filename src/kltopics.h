@@ -38,12 +38,12 @@ extern int kl_topic_message_count(KLTopic *topic);
 /**
  * Publish a single message to the topic.
  */
-extern void kl_topic_publish(KLTopic *topic, const char *message, size_t msgsize);
+extern size_t kl_topic_publish(KLTopic *topic, const char *message, size_t msgsize);
 
 /**
  * Publish a batch of messages to the topic.
  */
-extern void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes);
+extern size_t kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[], size_t *msgsizes);
 
 /**
  * Get the info about count number of messages starting from a particular message index.

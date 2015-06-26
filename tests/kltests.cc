@@ -15,26 +15,35 @@ void makeRandomMessage(char *buffer, int msgId, int nRand)
 	}
 }
 
-long long publishMessages(KLTopic *topic, int numMessages, int nRandMax)
+long long publishMessages(KLTopic *topic, int numMessages, int nRandMax, bool assertOffsets)
 {
-	long long beforeTime = current_timestamp();
 	// long long beforeTime = current_timestamp();
-	if (nRandMax > 0)
+	size_t offset = 0;
+	size_t totalSize = 0;
+	size_t msgsize = SAMPLE_MESSAGE_LEN;
+	const char *message = SAMPLE_MESSAGE;
+	char buffer[4096];
+	long long elapsedTime = 0;
+	for (int i = 0;i < numMessages;i++)
 	{
-		char buffer[1024];
-		for (int i = 0;i < numMessages;i++)
+		if (nRandMax > 0)
 		{
 			int nRand = i % nRandMax;
 			makeRandomMessage(buffer, i, nRand);
-			kl_topic_publish(topic, buffer, strlen(buffer));
+			msgsize = strlen(buffer);
+			message = buffer;
 		}
-	} else {
-		for (int i = 0;i < numMessages;i++)
+		long long beforeTime = current_timestamp();
+		offset = kl_topic_publish(topic, message, msgsize);
+		long long afterTime = current_timestamp();
+		elapsedTime += (afterTime - beforeTime);
+		totalSize += msgsize;
+		if (assertOffsets)
 		{
-			kl_topic_publish(topic, SAMPLE_MESSAGE, SAMPLE_MESSAGE_LEN);
+			CPPUNIT_ASSERT(offset == (totalSize + (sizeof(size_t) * (i + 1))));
 		}
 	}
-	long long afterTime = current_timestamp();
 	CPPUNIT_ASSERT(kl_topic_message_count(topic) == numMessages);
-	return afterTime - beforeTime;
+	CPPUNIT_ASSERT(totalSize + (sizeof(size_t) * numMessages) == offset);
+	return elapsedTime;
 }

@@ -11,7 +11,7 @@ void KLIteratorTests::setUp()
 	rmdirs(TEST_DIR);
 	context = kl_context_open(TEST_DIR, NULL);
 	topic = kl_topic_open(context, "topic");
-	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX);
+	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX, false);
 }
 
 /**
@@ -28,16 +28,21 @@ void KLIteratorTests::test_kl_iterator_new()
  */
 void KLIteratorTests::test_kl_iterator_consume()
 {
+	kl_context_close(context);
+	rmdirs("/tmp/kafka2"); context = kl_context_open("/tmp/kafka2", NULL);
+	topic = kl_topic_open(context, "topic");
+	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX, true);
+
 	// buffer to store the message
 	KLBuffer *msgbuffer = kl_buffer_new(512 * 512);
 
-	char buffer[1024];
+	char buffer[4096];
 	KLIterator *iterator = kl_iterator_new(context, "topic", 0);
 	CPPUNIT_ASSERT(iterator != NULL);
 
-	for (int i = 0;i < 5;i++)
+	for (int i = 0;i < NUM_MESSAGES;i++)
 	{
-		bool result = kl_iterator_forward(iterator, false);
+		bool result = kl_iterator_forward(iterator);
 		CPPUNIT_ASSERT(result);
 
 		// get the message size
@@ -51,6 +56,10 @@ void KLIteratorTests::test_kl_iterator_consume()
 
 		CPPUNIT_ASSERT(strlen(buffer) == msgsize);
 		CPPUNIT_ASSERT(message->size == msgsize);
+		KLMessageHeader messageInfo = kl_iterator_metadata(iterator);
+		kl_log("\nI: %d, Offset: %lld, Size: %lu", i, messageInfo.offset, messageInfo.size);
+		kl_log("\nBuffer:  |%s|", buffer);
+		kl_log("\nMessage: |%s|", message->data);
 		CPPUNIT_ASSERT(strcmp(buffer, message->data) == 0);
 	}
 }

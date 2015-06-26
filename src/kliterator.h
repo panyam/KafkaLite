@@ -38,13 +38,13 @@ extern size_t kl_iterator_msgsize(KLIterator *iterator);
  * Moves the iterator forward if there are any items left.
  * Optionally can block for more items to be produced while going forward.
  */
-extern bool kl_iterator_forward(KLIterator *iterator, bool block);
+extern bool kl_iterator_forward(KLIterator *iterator);
 
 /**
  * Moves the iterator backard if there are any items left.
  * Returns true if rewinding was successful otherwise false.
  */
-extern bool kl_iterator_rewind(KLIterator *iterator, bool block);
+extern bool kl_iterator_rewind(KLIterator *iterator);
 
 /**
  * Gets the metadata of the current message pointed by the iterator.

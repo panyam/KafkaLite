@@ -10,7 +10,7 @@ const long NUM_MESSAGES = 1000000;
  */
 void KLTopicTests::test_kl_topic_publish()
 {
-	KLTopic *topic = kl_topic_open(context, "topic");
+	KLTopic *topic = kl_topic_open(context, "topic2");
 
 	kl_topic_publish(topic, "hello world", strlen("hello world"));
 	CPPUNIT_ASSERT(kl_topic_message_count(topic) == 1);
@@ -24,7 +24,7 @@ void KLTopicTests::test_kl_topic_publish()
 void KLTopicTests::test_kl_topic_publish_load()
 {
 	KLTopic *topic = kl_topic_open(context, "topic");
-	long long timeTaken = publishMessages(topic, NUM_MESSAGES, 0);
+	long long timeTaken = publishMessages(topic, NUM_MESSAGES, 0, false);
 	kl_log("\nElapsed Time for %ld messages: %lld", NUM_MESSAGES, timeTaken);
 }
 
@@ -35,7 +35,7 @@ void KLTopicTests::test_kl_topic_publish_load_with_locking()
 {
 	context = kl_context_open(TEST_DIR, kl_pthread_mutex_factory());
 	KLTopic *topic = kl_topic_open(context, "topic");
-	long long timeTaken = publishMessages(topic, NUM_MESSAGES, 0);
+	long long timeTaken = publishMessages(topic, NUM_MESSAGES, 0, false);
 	kl_log("\nElapsed Time for %ld messages: %lld", NUM_MESSAGES, timeTaken);
 }
 
@@ -44,7 +44,7 @@ void KLTopicTests::test_kl_topic_publish_load_with_locking()
  */
 void KLTopicTests::test_kl_topic_restart()
 {
-	KLTopic *topic = kl_topic_open(context, "topic");
+	KLTopic *topic = kl_topic_open(context, "topic2");
 	kl_topic_publish(topic, "hello world", strlen("hello world"));
 	kl_topic_publish(topic, "hello world2", strlen("hello world2"));
 	CPPUNIT_ASSERT(kl_topic_message_count(topic) == 2);
@@ -53,7 +53,7 @@ void KLTopicTests::test_kl_topic_restart()
 	kl_context_close(context);
 
 	context = kl_context_open(TEST_DIR, NULL);
-	topic = kl_topic_open(context, "topic");
+	topic = kl_topic_open(context, "topic2");
 	CPPUNIT_ASSERT(kl_topic_message_count(topic) == 2);
 }
 

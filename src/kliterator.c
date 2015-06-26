@@ -65,19 +65,14 @@ size_t kl_iterator_msgsize(KLIterator *iterator)
 
 /**
  * Moves the iterator forward if there are any items left.
- * Optionally can block for more items to be produced while going forward.
  */
-bool kl_iterator_forward(KLIterator *iterator, bool block)
+bool kl_iterator_forward(KLIterator *iterator)
 {
 	if (!iterator)
 		return false;
 
 	if (iterator->currIndex >= iterator->topic->currIndex)
 	{
-		if (block)
-		{
-			// TODO: implement blocking until a message is produced.
-		}
 		return false;
 	}
 
@@ -93,7 +88,7 @@ bool kl_iterator_forward(KLIterator *iterator, bool block)
  * Moves the iterator backard if there are any items left.
  * Returns true if rewinding was successful otherwise false.
  */
-bool kl_iterator_rewind(KLIterator *iterator, bool block)
+bool kl_iterator_rewind(KLIterator *iterator)
 {
 	if (iterator->currIndex <= 0)
 		return false;
