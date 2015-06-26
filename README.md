@@ -66,17 +66,17 @@ Coming soon - packaging and brewing it up!
 	and messages are consumed in the order in which they were published.   To consume messages:
 
 	```	
-	KLIterator *iterator = kl_iterator_new(context, "mytopic", 0);
-	bool hasMore = kl_iterator_forward(iterator);
-	if (hasMore)
-	{
-	        size_t msgsize = kl_iterator_msgsize(iterator);
-	        KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize);
-	        kl_iterator_message(iterator, message);
+		KLIterator *iterator = kl_iterator_new(context, "mytopic", 0);
+		bool hasMore = kl_iterator_forward(iterator);
+		if (hasMore)
+		{
+		        size_t msgsize = kl_iterator_msgsize(iterator);
+	        	KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize);
+	        	kl_iterator_message(iterator, message);
 	        
-	        // Do something in the message...
-		printf("Message: %s\n", message->data);
-        }
+	        	// Do something in the message...
+			printf("Message: %s\n", message->data);
+        	}
 	```
 
 	Multiple iterators can be created to start at different offsets and can iterate
