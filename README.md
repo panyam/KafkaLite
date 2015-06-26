@@ -87,3 +87,6 @@ Coming soon - packaging and brewing it up!
 	kl_context_destroy(context)
 	```
 
+	This closes the context and all associated topics.   Any handle to this
+	context or topics assigned within this context (with kl_topic_open) is now
+	unusable.
