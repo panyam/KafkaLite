@@ -48,9 +48,9 @@ extern void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *
 /**
  * Get the info about count number of messages starting from a particular message index.
  * The output buffer "out" must point to a buffer that has enough space for
- * outCount KLMessageInfo objects.
+ * outCount KLMessageHeader objects.
  */
-extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *out, int outCount);
+extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, int outCount);
 
 /**
  * Get a list of messages beginning at a particular index.
@@ -65,7 +65,7 @@ extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *o
  *
  * May be make this a private API - so only consumers have access to this.
  */
-extern int kl_topic_get_messages(KLTopic *topic, KLMessageInfo *firstMessage, KLBuffer *output, int outCount);
+extern int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *firstMessage, int numMessages, KLMessage *outMessages);
 
 extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
 extern void kl_topic_finalize(KLTopic *topic);

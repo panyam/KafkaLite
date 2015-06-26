@@ -24,7 +24,7 @@ long long publishMessages(KLTopic *topic, int numMessages, int nRandMax)
 		char buffer[1024];
 		for (int i = 0;i < numMessages;i++)
 		{
-			int nRand = rand() % 100;
+			int nRand = i % nRandMax;
 			makeRandomMessage(buffer, i, nRand);
 			kl_topic_publish(topic, buffer, strlen(buffer));
 		}

@@ -67,7 +67,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 
 	// go to where we can start writing to index file 
 	// - only need to do this once per open
-	lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageInfo), SEEK_SET);
+	lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
 
 	// now go to the point where we can start writing data
 	// - only need to do this once per open
@@ -164,35 +164,6 @@ bool kl_topic_close(KLTopic *topic)
 }
 
 /**
- * Get the info about count number of messages starting from a particular message index.
- * The output buffer "out" must point to a buffer that has enough space for
- * outCount KLMessageInfo objects.
- */
-int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageInfo *out, int outCount)
-{
-	KLContextRef context = topic->context;
-	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
-	int endIndex = outCount + index;
-	if (endIndex >= topic->currIndex)
-	{
-		outCount -= (1 + endIndex - topic->currIndex);
-		endIndex = outCount + index;
-	}
-
-	if (endIndex > topic->flushedAtIndex)
-	{
-		// flush if consumption requires a simple read (keeps it simple)
-		kl_topic_flush(topic);
-	}
-	// see what the size is
-	lseek(topic->indexFile, index * sizeof(KLMessageInfo), SEEK_SET);
-	// read the message info
-	read(topic->indexFile, out, outCount * sizeof(KLMessageInfo));
-	KL_MUTEX_UNLOCK(context->mutexFactory, topic->filePosLock);
-	return outCount;
-}
-
-/**
  * Publish a single message.
  */
 void kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
@@ -221,13 +192,13 @@ void kl_topic_publish_multi(KLTopic *topic, int numMessages, const char *msgs[],
 
 void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 {
-	KLMessageInfo info;
+	KLMessageHeader info;
 	info.offset = topic->currOffset;
 	info.size = msgsize;
 
 	size_t payloadSize = sizeof(msgsize) + msgsize;
+	size_t unflushedLength = 0;
 
-	// write the actual data to the file
 	if (topic->dataBuffer)
 	{
 		// write to the buffer first
@@ -240,12 +211,7 @@ void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 		topic->currIndex++;
 		topic->currOffset += payloadSize;
 
-		size_t dataLength = kl_buffer_size(topic->dataBuffer);
-		if (dataLength > topic->flushThreshold)
-		{
-			// then flush it
-			kl_topic_flush(topic);
-		}
+		unflushedLength = kl_buffer_size(topic->dataBuffer);
 	} else {
 		// write the message
 		lseek(topic->dataFile, topic->currOffset, SEEK_SET);
@@ -253,7 +219,7 @@ void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 		write(topic->dataFile, msg, msgsize);
 
 		// now write the message info before updating the header
-		lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageInfo), SEEK_SET);
+		lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
 		write(topic->indexFile, (const char *)(&info), sizeof(info));
 
 		topic->currIndex++;
@@ -264,33 +230,45 @@ void kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 		write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
 		write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
 
-		topic->flushedAtIndex = topic->currIndex;
-		topic->flushedAtOffset = topic->currOffset;
+		unflushedLength = topic->currOffset - topic->flushedAtOffset;
 	}
+
+	// if we have not flushed in while then do it
+	if (unflushedLength > topic->flushThreshold)
+		kl_topic_flush(topic);
 }
 
+/**
+ * Ensures a topic is flushed and persisted.
+ */
 void kl_topic_flush(KLTopic *topic)
 {
-	size_t dataLength = kl_buffer_size(topic->dataBuffer);
-	if (dataLength > 0)
+	if (topic->dataBuffer)
 	{
-		write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
-		kl_buffer_reset(topic->dataBuffer);
+		size_t dataLength = kl_buffer_size(topic->dataBuffer);
+		if (dataLength > 0)
+		{
+			write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
+			kl_buffer_reset(topic->dataBuffer);
 
-		size_t indexLength = kl_buffer_size(topic->indexBuffer);
-		write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
-		kl_buffer_reset(topic->indexBuffer);
+			size_t indexLength = kl_buffer_size(topic->indexBuffer);
+			write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
+			kl_buffer_reset(topic->indexBuffer);
 
-		// now write the header in the index file
-		lseek(topic->metadataFile, 0, SEEK_SET);
-		write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
-		write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
+			// now write the header in the index file
+			lseek(topic->metadataFile, 0, SEEK_SET);
+			write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
+			write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
 
-		topic->flushedAtIndex = topic->currIndex;
-		topic->flushedAtOffset = topic->currOffset;
+		}
 	}
+	topic->flushedAtIndex = topic->currIndex;
+	topic->flushedAtOffset = topic->currOffset;
 }
 
+/**
+ * Returns the number of messages in this topic.
+ */
 int kl_topic_message_count(KLTopic *topic)
 {
 	if (!topic)
@@ -299,5 +277,52 @@ int kl_topic_message_count(KLTopic *topic)
 	int out = topic->currIndex;
 	KL_MUTEX_UNLOCK(topic->context->mutexFactory, topic->filePosLock);
 	return out;
+}
+
+/**
+ * Get the info about count number of messages starting from a particular message index.
+ * The output buffer "out" must point to a buffer that has enough space for
+ * outCount KLMessageHeader objects.
+ */
+int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, int outCount)
+{
+	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
+	int endIndex = outCount + index;
+	if (endIndex >= topic->currIndex)
+	{
+		outCount -= (1 + endIndex - topic->currIndex);
+		endIndex = outCount + index;
+	}
+
+	if (endIndex > topic->flushedAtIndex)
+	{
+		// flush if consumption requires a simple read (keeps it simple)
+		kl_topic_flush(topic);
+	}
+	// see what the size is
+	lseek(topic->indexFile, index * sizeof(KLMessageHeader), SEEK_SET);
+	// read the message info
+	read(topic->indexFile, out, outCount * sizeof(KLMessageHeader));
+	KL_MUTEX_UNLOCK(context->mutexFactory, topic->filePosLock);
+	return outCount;
+}
+
+int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *firstMessage, int numMessages, KLMessage *outMessages)
+{
+	KLContextRef context = topic->context;
+	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
+	lseek(topic->dataFile, firstMessage->offset, SEEK_SET);
+	// TODO: see if it is just faster to read 
+	// sum(firstMessage[0..numMessages].offset) + numMessages * sizeof(size_t)
+	// bytes in one go into outMessages array
+	for (int i = 0;i < numMessages;i++)
+	{
+		KLMessage *message = outMessages + i;
+		read(topic->dataFile, message, sizeof(size_t));
+		read(topic->dataFile, message->data, message->size);
+	}
+	KL_MUTEX_UNLOCK(context->mutexFactory, topic->filePosLock);
+	return 0;
 }
 

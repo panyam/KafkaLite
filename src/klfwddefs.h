@@ -29,8 +29,8 @@ typedef KLBuffer * KLBufferRef;
 typedef struct KLTopic KLTopic;
 typedef KLTopic * KLTopicRef;
 
-typedef struct KLMessageInfo KLMessageInfo;
-typedef KLMessageInfo * KLMessageInfoRef;
+typedef struct KLMessageHeader KLMessageHeader;
+typedef KLMessageHeader * KLMessageHeaderRef;
 
 typedef struct KLMessage KLMessage;
 typedef KLMessage * KLMessageRef;

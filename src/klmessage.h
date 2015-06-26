@@ -10,12 +10,21 @@ extern "C" {
 #endif
 
 /**
- * Info about a message.
+ * Info/Metadata about a message.
  */
-struct KLMessageInfo
+struct KLMessageHeader
 {
-	unsigned offset;
-	unsigned size;
+	off_t offset;
+	size_t size;
+};
+
+/**
+ * Stores the message size and data.
+ */
+struct KLMessage
+{
+	size_t size;
+	char data[];
 };
 
 #if defined(_cplusplus) || defined(__cplusplus)

@@ -49,14 +49,14 @@ extern bool kl_iterator_rewind(KLIterator *iterator, bool block);
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-extern KLMessageInfo kl_iterator_metadata(KLIterator *iterator);
+extern KLMessageHeader kl_iterator_metadata(KLIterator *iterator);
 
 /**
  * Gets the current message pointed by the iterator.  The caller must 
  * provide a buffer big enough to accomodate the data (whose size can be 
  * fetched from the kl_iterator_metadata method).
  */
-extern size_t kl_iterator_message(KLIterator *iterator, char *output);
+extern size_t kl_iterator_message(KLIterator *iterator, KLMessage *message);
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }

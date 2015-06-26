@@ -52,7 +52,7 @@ size_t kl_iterator_index(KLIterator *iterator)
  */
 size_t kl_iterator_offset(KLIterator *iterator)
 {
-	return iterator ? iterator->currMessageInfo.offset : 0;
+	return iterator ? iterator->currMessageHeader.offset : 0;
 }
 
 /**
@@ -60,7 +60,7 @@ size_t kl_iterator_offset(KLIterator *iterator)
  */
 size_t kl_iterator_msgsize(KLIterator *iterator)
 {
-	return iterator ? iterator->currMessageInfo.size : 0;
+	return iterator ? iterator->currMessageHeader.size : 0;
 }
 
 /**
@@ -72,7 +72,7 @@ bool kl_iterator_forward(KLIterator *iterator, bool block)
 	if (!iterator)
 		return false;
 
-	if (iterator->currIndex + 1 >= iterator->topic->currIndex)
+	if (iterator->currIndex >= iterator->topic->currIndex)
 	{
 		if (block)
 		{
@@ -81,11 +81,11 @@ bool kl_iterator_forward(KLIterator *iterator, bool block)
 		return false;
 	}
 
-	iterator->currIndex++;
-
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageInfo, 1);
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageHeader, 1);
+
+	iterator->currIndex ++;
 	return true;
 }
 
@@ -102,16 +102,16 @@ bool kl_iterator_rewind(KLIterator *iterator, bool block)
 
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageInfo, 1);
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageHeader, 1);
 	return true;
 }
 
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-KLMessageInfo kl_iterator_metadata(KLIterator *iterator)
+KLMessageHeader kl_iterator_metadata(KLIterator *iterator)
 {
-	return iterator->currMessageInfo;
+	return iterator->currMessageHeader;
 }
 
 /**
@@ -119,8 +119,9 @@ KLMessageInfo kl_iterator_metadata(KLIterator *iterator)
  * provide a buffer big enough to accomodate the data (whose size can be 
  * fetched from the kl_iterator_current_metadata method).
  */
-size_t kl_iterator_message(KLIterator *iterator, char *output)
+size_t kl_iterator_message(KLIterator *iterator, KLMessage *message)
 {
+	kl_topic_get_messages(iterator->topic, &iterator->currMessageHeader, 1, message);
 	return 0;
 }
 

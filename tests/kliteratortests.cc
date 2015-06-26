@@ -3,6 +3,7 @@
 #include "KLIteratorTests.h"
 
 const long NUM_MESSAGES = 1000;
+const long NUM_RAND_MAX = 100;
 
 void KLIteratorTests::setUp()
 {
@@ -10,7 +11,7 @@ void KLIteratorTests::setUp()
 	rmdirs(TEST_DIR);
 	context = kl_context_open(TEST_DIR, NULL);
 	topic = kl_topic_open(context, "topic");
-	publishMessages(topic, NUM_MESSAGES, true);
+	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX);
 }
 
 /**
@@ -43,7 +44,14 @@ void KLIteratorTests::test_kl_iterator_consume()
 		size_t msgsize = kl_iterator_msgsize(iterator);
 		kl_buffer_reset(msgbuffer);
 		kl_buffer_ensure_capacity(msgbuffer, msgsize);
-		kl_iterator_message(iterator, kl_buffer_bytes(msgbuffer));
+		KLMessage *message = (KLMessage *)kl_buffer_bytes(msgbuffer);
+		kl_iterator_message(iterator, message);
+
+		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);
+
+		CPPUNIT_ASSERT(strlen(buffer) == msgsize);
+		CPPUNIT_ASSERT(message->size == msgsize);
+		CPPUNIT_ASSERT(strcmp(buffer, message->data) == 0);
 	}
 }
 
