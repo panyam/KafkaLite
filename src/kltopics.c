@@ -28,7 +28,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 	topic->currOffset = 0;
 	topic->dataBuffer = kl_buffer_new(32000);
 	topic->indexBuffer = kl_buffer_new(512 * 512);
-	topic->flushThreshold = 100000;		// flush from memory to disk once data in mem exceeds this
+	topic->flushThreshold = 1000000;		// flush from memory to disk once data in mem exceeds this
 	topic->filePosLock = KL_MUTEX_NEW(context->mutexFactory, NULL);
 
 	char buffer[2048];
@@ -265,8 +265,12 @@ void kl_topic_flush(KLTopic *topic)
 			lseek(topic->metadataFile, 0, SEEK_SET);
 			write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
 			write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
+
+			fsync(topic->dataFile);
+			fsync(topic->indexFile);
+			fsync(topic->metadataFile);
 		}
-	} else {
+	} else if (topic->flushedAtIndex < topic->currIndex) {
 		fsync(topic->dataFile);
 		fsync(topic->indexFile);
 		fsync(topic->metadataFile);
@@ -298,10 +302,10 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
 	KLContextRef context = topic->context;
 	KL_MUTEX_LOCK(context->mutexFactory, topic->filePosLock);
 	int endIndex = outCount + index;
-	if (endIndex >= topic->currIndex)
+	if (endIndex > topic->currIndex)
 	{
-		outCount -= (1 + endIndex - topic->currIndex);
-		endIndex = outCount + index;
+		endIndex = topic->currIndex;
+		outCount = endIndex - index;
 	}
 
 	if (endIndex > topic->flushedAtIndex)

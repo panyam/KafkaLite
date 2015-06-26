@@ -51,16 +51,19 @@ void KLIteratorTests::test_kl_iterator_consume()
 		kl_buffer_ensure_capacity(msgbuffer, msgsize);
 		KLMessage *message = (KLMessage *)kl_buffer_bytes(msgbuffer);
 		kl_iterator_message(iterator, message);
+		message->data[msgsize] = 0;
 
 		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);
-
+		KLMessageHeader messageInfo = kl_iterator_metadata(iterator);
+		if (strlen(buffer) != msgsize || message->size != msgsize || strncmp(buffer, message->data, msgsize) != 0)
+		{
+			kl_log("\nFailed at I: %d, Offset: %lld, Size: %lu", i, messageInfo.offset, messageInfo.size);
+			kl_log("\nBuffer:  |%s|", buffer);
+			kl_log("\nMessage: |%s|", message->data);
+		}
 		CPPUNIT_ASSERT(strlen(buffer) == msgsize);
 		CPPUNIT_ASSERT(message->size == msgsize);
-		KLMessageHeader messageInfo = kl_iterator_metadata(iterator);
-		kl_log("\nI: %d, Offset: %lld, Size: %lu", i, messageInfo.offset, messageInfo.size);
-		kl_log("\nBuffer:  |%s|", buffer);
-		kl_log("\nMessage: |%s|", message->data);
-		CPPUNIT_ASSERT(strcmp(buffer, message->data) == 0);
+		CPPUNIT_ASSERT(strncmp(buffer, message->data, msgsize) == 0);
 	}
 }
 
