@@ -82,7 +82,7 @@ bool kl_buffer_ensure_capacity(KLBuffer *buffer, size_t extraBytes)
 /**
  * Returns the underlying bytes of the buffer.
  */
-const char *kl_buffer_bytes(KLBuffer *buffer)
+char *kl_buffer_bytes(KLBuffer *buffer)
 {
 	return buffer ? buffer->data : NULL;
 }

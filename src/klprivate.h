@@ -102,17 +102,17 @@ struct KLIterator
 	KLTopic *topic;
 
 	/**
+	 * Whether the current entry is loaded or not.
+	 */
+	size_t loadedCurrent;
+
+	/**
 	 * Current offset pointed by the interator.
 	 */
 	size_t currIndex;
 
 	/**
-	 * Current offset of the iterator
-	 */
-	size_t currOffset;
-
-	/**
-	 * Info about the current message.
+	 * A buffer holding info about 
 	 */
 	KLMessageInfo currMessageInfo;
 };

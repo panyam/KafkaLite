@@ -37,7 +37,7 @@ extern bool kl_buffer_ensure_capacity(KLBuffer *buffer, size_t extraBytes);
 /**
  * Returns the underlying bytes of the buffer.
  */
-extern const char *kl_buffer_bytes(KLBuffer *buffer);
+extern char *kl_buffer_bytes(KLBuffer *buffer);
 
 /**
  * Appends data to the end of the buffer.

@@ -52,7 +52,15 @@ size_t kl_iterator_index(KLIterator *iterator)
  */
 size_t kl_iterator_offset(KLIterator *iterator)
 {
-	return iterator ? iterator->currOffset : 0;
+	return iterator ? iterator->currMessageInfo.offset : 0;
+}
+
+/**
+ * Gets the size of the message currently pointed by the iterator
+ */
+size_t kl_iterator_msgsize(KLIterator *iterator)
+{
+	return iterator ? iterator->currMessageInfo.size : 0;
 }
 
 /**
@@ -61,7 +69,24 @@ size_t kl_iterator_offset(KLIterator *iterator)
  */
 bool kl_iterator_forward(KLIterator *iterator, bool block)
 {
-	return false;
+	if (!iterator)
+		return false;
+
+	if (iterator->currIndex + 1 >= iterator->topic->currIndex)
+	{
+		if (block)
+		{
+			// TODO: implement blocking until a message is produced.
+		}
+		return false;
+	}
+
+	iterator->currIndex++;
+
+	// TODO: consider using a circular buffer to keep keep more 
+	// than one message info in memory.
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageInfo, 1);
+	return true;
 }
 
 /**
@@ -72,13 +97,19 @@ bool kl_iterator_rewind(KLIterator *iterator, bool block)
 {
 	if (iterator->currIndex <= 0)
 		return false;
+
+	iterator->currIndex--;
+
+	// TODO: consider using a circular buffer to keep keep more 
+	// than one message info in memory.
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageInfo, 1);
 	return true;
 }
 
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-KLMessageInfo kl_iterator_current_metadata(KLIterator *iterator)
+KLMessageInfo kl_iterator_metadata(KLIterator *iterator)
 {
 	return iterator->currMessageInfo;
 }
@@ -88,7 +119,7 @@ KLMessageInfo kl_iterator_current_metadata(KLIterator *iterator)
  * provide a buffer big enough to accomodate the data (whose size can be 
  * fetched from the kl_iterator_current_metadata method).
  */
-size_t kl_iterator_current_message(KLIterator *iterator, char *output)
+size_t kl_iterator_message(KLIterator *iterator, char *output)
 {
 	return 0;
 }
