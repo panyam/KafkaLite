@@ -28,9 +28,6 @@ void KLIteratorTests::test_kl_iterator_new()
  */
 void KLIteratorTests::test_kl_iterator_consume()
 {
-	// buffer to store the message
-	KLBuffer *msgbuffer = kl_buffer_new(512 * 512);
-
 	char buffer[4096];
 	KLIterator *iterator = kl_iterator_new(context, "topic", 0);
 	CPPUNIT_ASSERT(iterator != NULL);
@@ -42,12 +39,9 @@ void KLIteratorTests::test_kl_iterator_consume()
 
 		// get the message size
 		size_t msgsize = kl_iterator_msgsize(iterator);
-		kl_buffer_reset(msgbuffer);
-		kl_buffer_ensure_capacity(msgbuffer, msgsize);
-		KLMessage *message = (KLMessage *)kl_buffer_bytes(msgbuffer);
+		KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize + 1);
 		kl_iterator_message(iterator, message);
 		message->data[msgsize] = 0;
-
 		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);
 		KLMessageHeader messageInfo = kl_iterator_metadata(iterator);
 		if (strlen(buffer) != msgsize || message->size != msgsize || strncmp(buffer, message->data, msgsize) != 0)
@@ -59,6 +53,7 @@ void KLIteratorTests::test_kl_iterator_consume()
 		CPPUNIT_ASSERT(strlen(buffer) == msgsize);
 		CPPUNIT_ASSERT(message->size == msgsize);
 		CPPUNIT_ASSERT(strncmp(buffer, message->data, msgsize) == 0);
+		free(message);
 	}
 }
 
