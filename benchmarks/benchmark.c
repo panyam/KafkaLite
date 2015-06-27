@@ -10,6 +10,12 @@ static int numProducers = 1;
 static int numConsumers = 1;
 static KLContext *context;
 
+/**
+ * Returns a small message 
+const char *smallMessage(int *length)
+{
+}
+
 void setup()
 {
 	rmdirs(contextDir);
