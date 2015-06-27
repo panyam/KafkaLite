@@ -28,13 +28,13 @@ void test_1p_1c_1thread(Benchmark *bm)
     for (;i < bm->numMessages;i++)
     {
 		publishMessage(bm);
-		// consumeMessage(bm, iterator, message);
+		consumeMessage(bm, iterator, message);
     }
 
     // finish with the remaining consumers
     for (;i < bm->leadAmount;i++)
     {
-		// consumeMessage(bm, iterator, message);
+		consumeMessage(bm, iterator, message);
     }
 }
 
