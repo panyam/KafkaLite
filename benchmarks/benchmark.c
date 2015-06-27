@@ -1,37 +1,52 @@
 
 #include "benchmark.h"
 
-char *const contextDir = "/tmp/kafka";
-int numMessages = 1000000;
-int numProducers = 1;
-int numConsumers = 1;
-KLContext *context;
-int numTestFiles = 0;
-char *testFileNames="messages/0.txt,messages/1.txt,messages/2.txt,messages/3.txt,messages/4.txt,"
-						   "messages/5.txt,messages/6.txt,messages/7.txt,messages/8.txt,messages/9.txt";
-size_t *testFileSizes = NULL;
-char **testFiles = NULL;
-
-void setup()
+void setup(Benchmark *bm)
 {
-	rmdirs(contextDir);
-	context = kl_context_open(contextDir, NULL);
+    loadTestFiles(bm);
+    rmdirs(bm->contextDir);
+    bm->context = kl_context_open(bm->contextDir, NULL);
+	bm->topic = kl_topic_open(bm->context, "topic");
 }
 
 /**
  * Single producer and single consumer
  */
-int test_1p_1c_1thread()
+void test_1p_1c_1thread(Benchmark *bm)
 {
-	return 0;
+    int i = 0;
+	KLIterator *iterator = kl_iterator_new(bm->context, "topic", 0);
+	KLMessage *message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
+
+    // produce and consume
+    for (;i < bm->leadAmount;i++)
+    {
+		publishMessage(bm);
+    }
+
+    // produce and consume
+    for (;i < bm->numMessages;i++)
+    {
+		publishMessage(bm);
+		// consumeMessage(bm, iterator, message);
+    }
+
+    // finish with the remaining consumers
+    for (;i < bm->leadAmount;i++)
+    {
+		// consumeMessage(bm, iterator, message);
+    }
 }
 
 int main(int argc, char *argv[])
 {
-	 int numCPU = sysconf( _SC_NPROCESSORS_ONLN );
-	 parseArgs(argc, argv);
-	 loadTestFiles(testFileNames);
-	 printf("NC: %d\n", numCPU);
-	 test_1p_1c_1thread();
-}
+    //int numCPU = sysconf( _SC_NPROCESSORS_ONLN ); printf("NC: %d\n", numCPU);
+ 	Benchmark *benchmark = calloc(1, sizeof(Benchmark));;
+    parseArgs(benchmark, argc, argv);
+    setup(benchmark);
 
+	long long beforeTime = current_timestamp();
+    test_1p_1c_1thread(benchmark);
+	long long afterTime = current_timestamp();
+	kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numTestMessages, afterTime - beforeTime);
+}

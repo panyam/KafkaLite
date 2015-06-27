@@ -1,26 +1,31 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <kafkalite.h>
 
 #ifndef __KL_BENCHMARKS_H__
 #define __KL_BENCHMARKS_H__
 
-#define DELIM 	 ','
+#define DELIM      ','
 
-extern char *const contextDir;
-extern int numMessages;
-extern int numProducers;
-extern int numConsumers;
-extern KLContext *context;
-extern int numTestFiles;
-extern char *testFileNames;
-extern size_t *testFileSizes;
-extern char **testFiles;
+typedef struct Benchmark
+{
+    char *contextDir;
+	int leadAmount;
+    int numMessages;
+    int numProducers;
+    int numConsumers;
+    int numTestMessages;
+    char *testFileNames;
+    size_t *testMessageSizes;
+    char **testMessages;
+	size_t maxMessageSize;
+    KLContext *context;
+    KLTopic *topic;
+} Benchmark;
 
-void loadTestFiles(char *testFileNames);
-void parseArgs(int argc, char *argv[]);
+extern void loadTestFiles(Benchmark *bm);
+extern void parseArgs(Benchmark *bm, int argc, char *argv[]);
+extern void publishMessage(Benchmark *bm);
+extern void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message);
 
 #endif
 
