@@ -2,9 +2,6 @@
 #ifndef __KL_TESTS_BASE_H__
 #define __KL_TESTS_BASE_H__
 
-#include <iostream>
-#include <string>
-#include <list>
 #include <cppunit/TestCase.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/ui/text/TextTestRunner.h>

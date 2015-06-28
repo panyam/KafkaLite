@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([libkafkalite], [0.0.1], [sri.panyam@gmail.com])
-AC_CONFIG_SRCDIR([benchmarks/benchmark.c])
+# AC_CONFIG_SRCDIR([benchmarks/benchmark.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -14,12 +14,11 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CC_C_O
 #AC_PROG_LIBTOOL
-AC_PROG_RANLIB
 AM_PROG_AR
 #AM_PROG_LIBTOOL
 
-# LT_INIT
-# LT_PREREQ([2.4.1])
+LT_INIT
+LT_PREREQ([2.4.1])
 
 # Checks for libraries.
 

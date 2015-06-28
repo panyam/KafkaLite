@@ -7,5 +7,5 @@ AM_CXXFLAGS = --pedantic -Wall
 # the previous manual Makefile
 check_PROGRAMS = kltests
 kltests_SOURCES = klcontexttests.cc klcontexttests.h kliteratortests.cc kliteratortests.h kltests.cc kltests.h kltopictests.cc kltopictests.h main.c
-kltests_LDADD = -lpthread -lcppunit -lkafkalite
-kltests_CFLAGS = -I../src
+kltests_LDADD = pthread cppunit kafkalite stdc++
+kltests_CXXFLAGS = -I src
