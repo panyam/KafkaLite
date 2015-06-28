@@ -8,7 +8,7 @@ const long NUM_RAND_MAX = 100;
 void KLIteratorTests::setUp()
 {
 	// remove the test dir
-	rmdirs(TEST_DIR);
+	kl_rmdirs(TEST_DIR);
 	context = kl_context_open(TEST_DIR, NULL);
 	topic = kl_topic_open(context, "topic");
 	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX, false);

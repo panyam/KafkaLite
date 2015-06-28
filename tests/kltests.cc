@@ -17,7 +17,7 @@ void makeRandomMessage(char *buffer, int msgId, int nRand)
 
 long long publishMessages(KLTopic *topic, int numMessages, int nRandMax, bool assertOffsets)
 {
-	// long long beforeTime = current_timestamp();
+	// long long beforeTime = kl_current_timestamp();
 	size_t offset = 0;
 	size_t totalSize = 0;
 	size_t msgsize = SAMPLE_MESSAGE_LEN;
@@ -33,9 +33,9 @@ long long publishMessages(KLTopic *topic, int numMessages, int nRandMax, bool as
 			msgsize = strlen(buffer);
 			message = buffer;
 		}
-		long long beforeTime = current_timestamp();
+		long long beforeTime = kl_current_timestamp();
 		offset = kl_topic_publish(topic, message, msgsize);
-		long long afterTime = current_timestamp();
+		long long afterTime = kl_current_timestamp();
 		elapsedTime += (afterTime - beforeTime);
 		totalSize += msgsize;
 		if (assertOffsets)
