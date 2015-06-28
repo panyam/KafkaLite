@@ -32,7 +32,7 @@ void test_1p_1c_1thread(Benchmark *bm)
     }
 
     // finish with the remaining consumers
-    for (;i < bm->leadAmount;i++)
+    for (i = 0;i < bm->leadAmount;i++)
     {
 		consumeMessage(bm, iterator, message);
     }
