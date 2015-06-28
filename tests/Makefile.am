@@ -5,7 +5,9 @@ AM_CXXFLAGS = --pedantic -Wall
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
+TESTS=kltests
 check_PROGRAMS = kltests
 kltests_SOURCES = klcontexttests.cc klcontexttests.h kliteratortests.cc kliteratortests.h kltests.cc kltests.h kltopictests.cc kltopictests.h main.cc
-kltests_LDADD = pthread cppunit kafkalite
-kltests_CXXFLAGS = -I src
+kltests_LDADD = -lkafkalite -lcppunit
+kltests_LDFLAGS = -pthread
+kltests_CXXFLAGS = -I ../src -L../src/.libs
