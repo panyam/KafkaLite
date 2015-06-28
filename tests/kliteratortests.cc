@@ -1,6 +1,6 @@
 
 
-#include "KLIteratorTests.h"
+#include "kliteratortests.h"
 
 const long NUM_MESSAGES = 1000;
 const long NUM_RAND_MAX = 100;

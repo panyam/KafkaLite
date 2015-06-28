@@ -1,5 +1,5 @@
 
-#include "KLTests.h"
+#include "kltests.h"
 
 const char *SAMPLE_MESSAGE = "Hello World 1234567890";
 const size_t SAMPLE_MESSAGE_LEN = strlen(SAMPLE_MESSAGE);

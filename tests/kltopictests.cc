@@ -1,7 +1,7 @@
 
 
 #include <kafkalite.h>
-#include "KLTopicTests.h"
+#include "kltopictests.h"
 
 const long NUM_MESSAGES = 1000000;
 
