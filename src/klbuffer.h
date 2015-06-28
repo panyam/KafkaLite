@@ -45,6 +45,12 @@ extern char *kl_buffer_bytes(KLBuffer *buffer);
 extern void kl_buffer_append(KLBuffer *buffer, const char *data, size_t datasize);
 
 /**
+ * Copy a portion of the buffer to the output buffer and returns the number of
+ * bytes copied.
+ */
+extern size_t kl_buffer_copy(KLBuffer *buffer, off_t srcOffset, char *output, size_t numBytes);
+
+/**
  * Clears the buffer and resets to the position to the start.
  */
 extern void kl_buffer_reset(KLBuffer *buffer);
