@@ -123,7 +123,9 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libkafkalite_a_AR = $(AR) $(ARFLAGS)
 libkafkalite_a_LIBADD =
-am_libkafkalite_a_OBJECTS = *.$(OBJEXT)
+am_libkafkalite_a_OBJECTS = klarray.$(OBJEXT) klbuffer.$(OBJEXT) \
+	klcontext.$(OBJEXT) kliterator.$(OBJEXT) \
+	klpthreadmutex.$(OBJEXT) kltopics.$(OBJEXT) klutils.$(OBJEXT)
 libkafkalite_a_OBJECTS = $(am_libkafkalite_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -282,7 +284,7 @@ AM_LDFLAGS =
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
 lib_LIBRARIES = libkafkalite.a
-libkafkalite_a_SOURCES = *.h *.c
+libkafkalite_a_SOURCES = kafkalite.h klarray.c klarray.h klbuffer.c klbuffer.h klconcurrency.h klconsumer.h klcontext.c klcontext.h klfwddefs.h kliterator.c kliterator.h klmessage.h klprivate.h klpthreadmutex.c klpthreadmutex.h kltopics.c kltopics.h klutils.c klutils.h
 all: all-am
 
 .SUFFIXES:
@@ -360,7 +362,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/*.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klarray.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klbuffer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klcontext.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kliterator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klpthreadmutex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltopics.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klutils.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
