@@ -359,7 +359,8 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
     if (index2 < index3)
     {
         outCount = index3 - index2;
-        kl_buffer_copy(topic->indexBuffer, index1 * sizeof(KLMessageHeader),
+        kl_buffer_copy(topic->indexBuffer,
+                        (index2 - topic->flushedAtIndex) * sizeof(KLMessageHeader),
                         (char *)out, outCount * sizeof(KLMessageHeader));
         totalOutCount += outCount;
     }
@@ -395,7 +396,7 @@ int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *firstMessage, int num
     }
 
     // read the rest from the buffer
-    for (off_t srcOffset = currOffset;i < numMessages;i++)
+    for (off_t srcOffset = currOffset - topic->flushedAtOffset;i < numMessages;i++)
     {
         KLMessage *message = outMessages + i;
         kl_buffer_copy(topic->dataBuffer, srcOffset, (char *)message, sizeof(KLMessage));
