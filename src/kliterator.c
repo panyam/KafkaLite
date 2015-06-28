@@ -116,7 +116,6 @@ KLMessageHeader kl_iterator_metadata(KLIterator *iterator)
  */
 size_t kl_iterator_message(KLIterator *iterator, KLMessage *message)
 {
-	kl_topic_get_messages(iterator->topic, &iterator->currMessageHeader, 1, message);
-	return 0;
+	return kl_topic_get_messages(iterator->topic, &iterator->currMessageHeader, 1, message);
 }
 
