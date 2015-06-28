@@ -1,3 +1,4 @@
+ACLOCAL_AMFLAGS = -I m4 --install
 
 # what flags you want to pass to the C compiler & linker
 AM_CXXFLAGS = --pedantic -Wall
