@@ -93,9 +93,9 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_kltests_OBJECTS = klcontexttests.$(OBJEXT) \
-	kliteratortests.$(OBJEXT) kltests.$(OBJEXT) \
-	kltopictests.$(OBJEXT) main.$(OBJEXT)
+am_kltests_OBJECTS = kltests-klcontexttests.$(OBJEXT) \
+	kltests-kliteratortests.$(OBJEXT) kltests-kltests.$(OBJEXT) \
+	kltests-kltopictests.$(OBJEXT) kltests-main.$(OBJEXT)
 kltests_OBJECTS = $(am_kltests_OBJECTS)
 kltests_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -103,7 +103,7 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 kltests_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(kltests_CXXFLAGS) \
 	$(CXXFLAGS) $(kltests_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -514,6 +514,7 @@ AM_CXXFLAGS = --pedantic -Wall
 kltests_SOURCES = klcontexttests.cc klcontexttests.h kliteratortests.cc kliteratortests.h kltests.cc kltests.h kltopictests.cc kltopictests.h main.cc
 kltests_LDADD = -lkafkalite -lcppunit
 kltests_LDFLAGS = -pthread
+kltests_CXXFLAGS = -I $(includedir) -L $(libdir)
 all: all-am
 
 .SUFFIXES:
@@ -568,11 +569,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/klcontexttests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kliteratortests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltopictests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests-klcontexttests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests-kliteratortests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests-kltests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests-kltopictests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kltests-main.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -594,6 +595,76 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+kltests-klcontexttests.o: klcontexttests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-klcontexttests.o -MD -MP -MF $(DEPDIR)/kltests-klcontexttests.Tpo -c -o kltests-klcontexttests.o `test -f 'klcontexttests.cc' || echo '$(srcdir)/'`klcontexttests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-klcontexttests.Tpo $(DEPDIR)/kltests-klcontexttests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='klcontexttests.cc' object='kltests-klcontexttests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-klcontexttests.o `test -f 'klcontexttests.cc' || echo '$(srcdir)/'`klcontexttests.cc
+
+kltests-klcontexttests.obj: klcontexttests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-klcontexttests.obj -MD -MP -MF $(DEPDIR)/kltests-klcontexttests.Tpo -c -o kltests-klcontexttests.obj `if test -f 'klcontexttests.cc'; then $(CYGPATH_W) 'klcontexttests.cc'; else $(CYGPATH_W) '$(srcdir)/klcontexttests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-klcontexttests.Tpo $(DEPDIR)/kltests-klcontexttests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='klcontexttests.cc' object='kltests-klcontexttests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-klcontexttests.obj `if test -f 'klcontexttests.cc'; then $(CYGPATH_W) 'klcontexttests.cc'; else $(CYGPATH_W) '$(srcdir)/klcontexttests.cc'; fi`
+
+kltests-kliteratortests.o: kliteratortests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kliteratortests.o -MD -MP -MF $(DEPDIR)/kltests-kliteratortests.Tpo -c -o kltests-kliteratortests.o `test -f 'kliteratortests.cc' || echo '$(srcdir)/'`kliteratortests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kliteratortests.Tpo $(DEPDIR)/kltests-kliteratortests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kliteratortests.cc' object='kltests-kliteratortests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kliteratortests.o `test -f 'kliteratortests.cc' || echo '$(srcdir)/'`kliteratortests.cc
+
+kltests-kliteratortests.obj: kliteratortests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kliteratortests.obj -MD -MP -MF $(DEPDIR)/kltests-kliteratortests.Tpo -c -o kltests-kliteratortests.obj `if test -f 'kliteratortests.cc'; then $(CYGPATH_W) 'kliteratortests.cc'; else $(CYGPATH_W) '$(srcdir)/kliteratortests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kliteratortests.Tpo $(DEPDIR)/kltests-kliteratortests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kliteratortests.cc' object='kltests-kliteratortests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kliteratortests.obj `if test -f 'kliteratortests.cc'; then $(CYGPATH_W) 'kliteratortests.cc'; else $(CYGPATH_W) '$(srcdir)/kliteratortests.cc'; fi`
+
+kltests-kltests.o: kltests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kltests.o -MD -MP -MF $(DEPDIR)/kltests-kltests.Tpo -c -o kltests-kltests.o `test -f 'kltests.cc' || echo '$(srcdir)/'`kltests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kltests.Tpo $(DEPDIR)/kltests-kltests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kltests.cc' object='kltests-kltests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kltests.o `test -f 'kltests.cc' || echo '$(srcdir)/'`kltests.cc
+
+kltests-kltests.obj: kltests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kltests.obj -MD -MP -MF $(DEPDIR)/kltests-kltests.Tpo -c -o kltests-kltests.obj `if test -f 'kltests.cc'; then $(CYGPATH_W) 'kltests.cc'; else $(CYGPATH_W) '$(srcdir)/kltests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kltests.Tpo $(DEPDIR)/kltests-kltests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kltests.cc' object='kltests-kltests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kltests.obj `if test -f 'kltests.cc'; then $(CYGPATH_W) 'kltests.cc'; else $(CYGPATH_W) '$(srcdir)/kltests.cc'; fi`
+
+kltests-kltopictests.o: kltopictests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kltopictests.o -MD -MP -MF $(DEPDIR)/kltests-kltopictests.Tpo -c -o kltests-kltopictests.o `test -f 'kltopictests.cc' || echo '$(srcdir)/'`kltopictests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kltopictests.Tpo $(DEPDIR)/kltests-kltopictests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kltopictests.cc' object='kltests-kltopictests.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kltopictests.o `test -f 'kltopictests.cc' || echo '$(srcdir)/'`kltopictests.cc
+
+kltests-kltopictests.obj: kltopictests.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-kltopictests.obj -MD -MP -MF $(DEPDIR)/kltests-kltopictests.Tpo -c -o kltests-kltopictests.obj `if test -f 'kltopictests.cc'; then $(CYGPATH_W) 'kltopictests.cc'; else $(CYGPATH_W) '$(srcdir)/kltopictests.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-kltopictests.Tpo $(DEPDIR)/kltests-kltopictests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='kltopictests.cc' object='kltests-kltopictests.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-kltopictests.obj `if test -f 'kltopictests.cc'; then $(CYGPATH_W) 'kltopictests.cc'; else $(CYGPATH_W) '$(srcdir)/kltopictests.cc'; fi`
+
+kltests-main.o: main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-main.o -MD -MP -MF $(DEPDIR)/kltests-main.Tpo -c -o kltests-main.o `test -f 'main.cc' || echo '$(srcdir)/'`main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-main.Tpo $(DEPDIR)/kltests-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='main.cc' object='kltests-main.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-main.o `test -f 'main.cc' || echo '$(srcdir)/'`main.cc
+
+kltests-main.obj: main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -MT kltests-main.obj -MD -MP -MF $(DEPDIR)/kltests-main.Tpo -c -o kltests-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/kltests-main.Tpo $(DEPDIR)/kltests-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='main.cc' object='kltests-main.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(kltests_CXXFLAGS) $(CXXFLAGS) -c -o kltests-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -972,7 +1043,6 @@ uninstall-am:
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	recheck tags tags-am uninstall uninstall-am
 
-# kltests_CXXFLAGS = -I ../src -L../src/.libs
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
