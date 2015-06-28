@@ -6,6 +6,17 @@
 void kl_topic_flush(KLTopic *topic);
 size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize);
 
+size_t kl_read_file(KLTopic *topic, int fd, void *buff, size_t size, off_t offset)
+{
+    if (topic->usePread)
+    {
+        return pread(fd, buff, size, offset);
+    } else {
+        lseek(fd, offset, SEEK_SET);
+        return read(fd, buff, size);
+    }
+}
+
 int kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
     for (int i = 0, count = kl_array_count(context->topics);i < count;i++)
@@ -21,6 +32,7 @@ int kl_topic_find_unlocked(KLContextRef context, const char *name)
 
 void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 {
+    topic->usePread = topic->usePwrite = false;
     topic->context = context;
     topic->name = strdup(name);
     topic->refCount = 0;
@@ -61,9 +73,11 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
     }
 
     // from the index file gather the number of messages and the num
-    lseek(topic->metadataFile, 0, SEEK_SET);
-    read(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
-    read(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
+
+    size_t values[2];
+    kl_read_file(topic, topic->metadataFile, values, sizeof(values), 0);
+    topic->currIndex = values[0];
+    topic->currOffset = values[1];
 
     // go to where we can start writing to index file 
     // - only need to do this once per open
@@ -216,14 +230,26 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 
         unflushedLength = kl_buffer_size(topic->dataBuffer);
     } else {
-        // write the message
-        lseek(topic->dataFile, topic->currOffset, SEEK_SET);
-        write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
-        write(topic->dataFile, msg, msgsize);
+        if (topic->usePwrite)
+        {
+            // write the message
+			off_t off = topic->currOffset;
+            pwrite(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize), off);
+			off += sizeof(msgsize);
+            pwrite(topic->dataFile, msg, msgsize, off);
 
-        // now write the message info before updating the header
-        lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
-        write(topic->indexFile, (const char *)(&info), sizeof(info));
+            // now write the message info before updating the header
+            pwrite(topic->indexFile, (const char *)(&info), sizeof(info), topic->currIndex * sizeof(KLMessageHeader));
+        } else {
+            // write the message
+            lseek(topic->dataFile, topic->currOffset, SEEK_SET);
+            write(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize));
+            write(topic->dataFile, msg, msgsize);
+
+            // now write the message info before updating the header
+            lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
+            write(topic->indexFile, (const char *)(&info), sizeof(info));
+        }
 
         topic->currIndex++;
         topic->currOffset += payloadSize;
