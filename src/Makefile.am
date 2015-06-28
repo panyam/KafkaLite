@@ -4,5 +4,5 @@ LDFLAGS =
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
-bin_PROGRAMS = kafkalite
-kafkalite_SOURCES = kafkalite.h klcontext.c
+lib_LIBRARIES = libkafkalite
+libkafkalite_SOURCES = *.h *.c
