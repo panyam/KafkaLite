@@ -8,14 +8,14 @@
 extern "C" {
 #endif
 
-extern bool ensure_directory(const char *path);
+extern bool kl_ensure_dir(const char *path);
 
 /**
  * Remove a directory and its children recursively.
  */
-extern void rmdirs(const char *path);
+extern void kl_rmdirs(const char *path);
 
-extern long long current_timestamp();
+extern long long kl_current_timestamp();
 
 #define kl_log 		printf
 

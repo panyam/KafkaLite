@@ -18,7 +18,7 @@ public:
 public:
 	virtual void setUp(void) {
 		// remove the test dir
-		rmdirs(TEST_DIR);
+		kl_rmdirs(TEST_DIR);
 		context = kl_context_open(TEST_DIR, NULL);
 	}
 	virtual void tearDown(void) { 

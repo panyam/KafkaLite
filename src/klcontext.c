@@ -10,13 +10,13 @@ static void kl_context_set_mutex_factory(KLContext *ctx, KLLockManager *lockMana
  */
 KLContext *kl_context_open(const char *baseDir, KLLockManager *lockManager)
 {
-	if (!ensure_directory(baseDir))
+	if (!kl_ensure_dir(baseDir))
 		return NULL;
 	KLContext *out = calloc(1, sizeof(KLContext));
 	out->baseDir = strdup(baseDir);
 	out->topicsDir = malloc(strlen(baseDir) + 1 + strlen("/topics"));
 	sprintf(out->topicsDir, "%s/topics", baseDir);
-	if (!ensure_directory(out->topicsDir))
+	if (!kl_ensure_dir(out->topicsDir))
 	{
 		free(out->baseDir);
 		free(out->topicsDir);

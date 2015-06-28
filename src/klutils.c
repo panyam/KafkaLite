@@ -2,7 +2,7 @@
 #include "klprivate.h"
 #include <ftw.h>
 
-bool ensure_directory(const char *path)
+bool kl_ensure_dir(const char *path)
 {
 	struct stat fileStat;
 	if (stat(path, &fileStat) != 0)
@@ -30,12 +30,12 @@ int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW
     return rv;
 }
 
-void rmdirs(const char *path)
+void kl_rmdirs(const char *path)
 {
 	nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
 
-long long current_timestamp() {
+long long kl_current_timestamp() {
 	struct timeval te; 
 	gettimeofday(&te, NULL); // get current time
 	return te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
