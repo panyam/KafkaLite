@@ -65,7 +65,7 @@ extern int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader 
  *
  * May be make this a private API - so only consumers have access to this.
  */
-extern int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *firstMessage, int numMessages, KLMessage *outMessages);
+extern int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, int numMessages, KLMessage *outMessages);
 
 extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
 extern void kl_topic_finalize(KLTopic *topic);

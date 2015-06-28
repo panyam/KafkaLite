@@ -49,7 +49,7 @@ extern bool kl_iterator_rewind(KLIterator *iterator);
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-extern KLMessageHeader kl_iterator_metadata(KLIterator *iterator);
+extern KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator);
 
 /**
  * Gets the current message pointed by the iterator.  The caller must 

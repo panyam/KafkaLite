@@ -104,9 +104,9 @@ bool kl_iterator_rewind(KLIterator *iterator)
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-KLMessageHeader kl_iterator_metadata(KLIterator *iterator)
+KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator)
 {
-	return iterator->currMessageHeader;
+	return &iterator->currMessageHeader;
 }
 
 /**

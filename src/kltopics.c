@@ -341,8 +341,8 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
     int totalOutCount = 0;
     int index1 = index;
     int index2 = topic->flushedAtIndex;
-	if (index2 > endIndex)
-		index2 = endIndex;
+    if (index2 > endIndex)
+        index2 = endIndex;
     if (index1 < index2)
     {
         // index1 to index2 is on disk so read from disk
@@ -372,39 +372,41 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
     return totalOutCount;
 }
 
-int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *firstMessage, int numMessages, KLMessage *outMessages)
+int kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, int numMessages, KLMessage *outMessages)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
 
-    off_t currOffset = firstMessage->offset;
-    // TODO: see if it is just faster to read 
-    // sum(firstMessage[0..numMessages].offset) + numMessages * sizeof(size_t)
-    // bytes in one go into outMessages array
+    // calculate the total read size and do one big read instead of multiple small ones
+    size_t totalReadSize = numMessages * sizeof(KLMessage);
+    for (int i = 0;i < numMessages;i++)
+        totalReadSize += headers[i].size;
 
-    int i = 0;
-    if (currOffset < topic->flushedAtOffset)
+    KLMessageHeader *const firstMsgHeader = headers;
+    off_t endOffset = firstMsgHeader->offset + totalReadSize;
+    if (endOffset > topic->currOffset)
+            endOffset = topic->currOffset;
+
+    off_t offset1 = firstMsgHeader->offset;
+    off_t offset2 = topic->flushedAtOffset;
+    if (offset2 > endOffset)
+        offset2 = endOffset;;
+
+    char *outBuffer = (char *)outMessages;
+    if (offset1 < offset2)
     {
-        lseek(topic->dataFile, firstMessage->offset, SEEK_SET);
-        for (;i < numMessages;i++)
-        {
-            if (currOffset >= topic->flushedAtOffset)
-                break ;
-            KLMessage *message = outMessages + i;
-            read(topic->dataFile, message, sizeof(size_t));
-            read(topic->dataFile, message->data, message->size);
-            currOffset += (sizeof(size_t) + message->size);
-        }
+        // read the first bit from the file
+        kl_read_file(topic, topic->dataFile, outBuffer, offset2 - offset1, offset1);
+        outBuffer += (offset2 - offset1);
+    } else {
+        offset2 = offset1;
     }
 
     // read the rest from the buffer
-    for (off_t srcOffset = currOffset - topic->flushedAtOffset;i < numMessages;i++)
+    off_t offset3 = endOffset;
+    if (offset2 < offset3)
     {
-        KLMessage *message = outMessages + i;
-        kl_buffer_copy(topic->dataBuffer, srcOffset, (char *)message, sizeof(KLMessage));
-        srcOffset += sizeof(KLMessage);
-        kl_buffer_copy(topic->dataBuffer, srcOffset, message->data, message->size);
-        srcOffset += message->size;
+        kl_buffer_copy(topic->dataBuffer, offset2 - topic->flushedAtOffset, outBuffer, offset3 - offset2);
     }
 
     KL_MUTEX_UNLOCK(context->lockManager, topic->filePosLock);
