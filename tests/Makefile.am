@@ -10,4 +10,4 @@ check_PROGRAMS = kltests
 kltests_SOURCES = klcontexttests.cc klcontexttests.h kliteratortests.cc kliteratortests.h kltests.cc kltests.h kltopictests.cc kltopictests.h main.cc
 kltests_LDADD = -lkafkalite -lcppunit
 kltests_LDFLAGS = -pthread
-kltests_CXXFLAGS = -I ../src -L../src/.libs
+# kltests_CXXFLAGS = -I ../src -L../src/.libs

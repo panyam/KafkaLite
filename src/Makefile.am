@@ -6,4 +6,6 @@ AM_LDFLAGS =
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
 lib_LTLIBRARIES = libkafkalite.la
-libkafkalite_la_SOURCES = kafkalite.h klarray.c klarray.h klbuffer.c klbuffer.h klconcurrency.h klconsumer.h klcontext.c klcontext.h klfwddefs.h kliterator.c kliterator.h klmessage.h klprivate.h klpthreadmutex.c klpthreadmutex.h kltopics.c kltopics.h klutils.c klutils.h
+libkafkalite_la_SOURCES = klarray.c klbuffer.c klcontext.c kliterator.c klpthreadmutex.c kltopics.c klutils.c \
+						  klarray.h klbuffer.h klconcurrency.h klconsumer.h klcontext.h klfwddefs.h kliterator.h klmessage.h klprivate.h klpthreadmutex.h kltopics.h klutils.h
+include_HEADERS = kafkalite.h 
