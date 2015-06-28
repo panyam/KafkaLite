@@ -9,7 +9,7 @@
 typedef struct Benchmark
 {
     char *contextDir;
-	int leadAmount;
+    int leadAmount;
     int numMessages;
     int numProducers;
     int numConsumers;
@@ -17,7 +17,7 @@ typedef struct Benchmark
     char *testFileNames;
     size_t *testMessageSizes;
     char **testMessages;
-	size_t maxMessageSize;
+    size_t maxMessageSize;
     KLContext *context;
     KLTopic *topic;
 } Benchmark;

@@ -11,7 +11,7 @@ void loadTestFiles(Benchmark *bm)
         if (*tmp == DELIM)
             numCommas++;
 
-	bm->maxMessageSize = 0;
+    bm->maxMessageSize = 0;
     bm->numTestMessages = 0;
     bm->testMessageSizes = (size_t *)malloc(sizeof(size_t) * (numCommas + 1));
     bm->testMessages = (char **)malloc(sizeof(char *) * (numCommas + 1));
@@ -30,8 +30,8 @@ void loadTestFiles(Benchmark *bm)
             {
                 printf("Error opening file: %s\n", strerror(errno));
             } else {
-				if (fileStat.st_size > bm->maxMessageSize)
-					bm->maxMessageSize = fileStat.st_size;
+                if (fileStat.st_size > bm->maxMessageSize)
+                    bm->maxMessageSize = fileStat.st_size;
                 bm->testMessageSizes[bm->numTestMessages] = fileStat.st_size;
                 bm->testMessages[bm->numTestMessages] = (char *)malloc(fileStat.st_size);
                 read(fd, bm->testMessages[bm->numTestMessages], fileStat.st_size);
@@ -56,7 +56,7 @@ void usage()
 void parseArgs(Benchmark *bm, int argc, char *argv[])
 {
     bm->contextDir = strdup("/tmp/kafka");
-	bm->leadAmount = 20;
+    bm->leadAmount = 20;
     bm->numMessages = 1000000;
     bm->numProducers = 1;
     bm->numConsumers = 1;
@@ -91,15 +91,15 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
 
 void publishMessage(Benchmark *bm)
 {
-	int msgIndex = rand() % bm->numTestMessages;
-	const char *message = bm->testMessages[msgIndex];
-	size_t msgsize = bm->testMessageSizes[msgIndex];
-	kl_topic_publish(bm->topic, message, msgsize);
+    int msgIndex = rand() % bm->numTestMessages;
+    const char *message = bm->testMessages[msgIndex];
+    size_t msgsize = bm->testMessageSizes[msgIndex];
+    kl_topic_publish(bm->topic, message, msgsize);
 }
 
 void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message)
 {
-	bool hasMore = kl_iterator_forward(iterator);
+    bool hasMore = kl_iterator_forward(iterator);
     kl_iterator_message(iterator, message);
 }
 
