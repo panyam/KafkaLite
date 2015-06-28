@@ -99,7 +99,7 @@ void publishMessage(Benchmark *bm)
 
 void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message)
 {
-    bool hasMore = kl_iterator_forward(iterator);
+    kl_iterator_forward(iterator);
     kl_iterator_message(iterator, message);
 }
 

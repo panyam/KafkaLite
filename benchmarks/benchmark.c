@@ -48,5 +48,5 @@ int main(int argc, char *argv[])
     long long beforeTime = kl_current_timestamp();
     test_1p_1c_1thread(benchmark);
     long long afterTime = kl_current_timestamp();
-    kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numTestMessages, afterTime - beforeTime);
+    kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numMessages, afterTime - beforeTime);
 }
