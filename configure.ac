@@ -12,6 +12,7 @@ AM_INIT_AUTOMAKE([1.11 -Wall -Werror])
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
+AM_PROG_AR
 
 # Checks for libraries.
 
