@@ -45,6 +45,11 @@ extern size_t kl_array_element_size(KLArray *array);
 extern void *kl_array_element_at(KLArray *array, int index);
 
 /**
+ * Returns a random element.
+ */
+extern void *kl_array_random(KLArray *array);
+
+/**
  * Removes an element at a given index.
  */
 extern void kl_array_remove_at(KLArray *array, int index);

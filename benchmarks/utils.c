@@ -3,20 +3,18 @@
 
 void loadTestFiles(Benchmark *bm)
 {
-    char *token, *tofree, *string;
-    tofree = string = strdup(bm->testFileNames);
-
-    int numCommas = 0;
-    for (char *tmp = string;*tmp;tmp++)
-        if (*tmp == DELIM)
-            numCommas++;
-
     bm->maxMessageSize = 0;
-    bm->numTestMessages = 0;
-    bm->testMessageSizes = (size_t *)malloc(sizeof(size_t) * (numCommas + 1));
-    bm->testMessages = (char **)malloc(sizeof(char *) * (numCommas + 1));
-    while ((token = strsep(&string, ",")) != NULL)
-    {
+    bm->testMessages = kl_array_new(sizeof(KLMessage *), 20);
+
+	const char *start = bm->testFileNames;
+	const char *realend = start + strlen(start);
+	while (start < realend)
+	{
+		const char *end = start;
+		while (*end && *end != ',') end++;
+		char *token = strndup(start, end - start);
+		start = end + 1;
+
         printf("Loading Test File: %s\n", token);
         struct stat fileStat;
         if (stat(token, &fileStat) != 0)
@@ -32,15 +30,18 @@ void loadTestFiles(Benchmark *bm)
             } else {
                 if (fileStat.st_size > bm->maxMessageSize)
                     bm->maxMessageSize = fileStat.st_size;
-                bm->testMessageSizes[bm->numTestMessages] = fileStat.st_size;
-                bm->testMessages[bm->numTestMessages] = (char *)malloc(fileStat.st_size);
-                read(fd, bm->testMessages[bm->numTestMessages], fileStat.st_size);
+
+				KLMessage **nextMsgSize = kl_array_insert_at(bm->testMessages, -1);
+				nextMsgSize[0] = (KLMessage *)malloc(sizeof(KLMessage) + fileStat.st_size);
+				nextMsgSize[0]->size = fileStat.st_size;
+                read(fd, nextMsgSize[0]->data, fileStat.st_size);
                 close(fd);
-                bm->numTestMessages++;
             }
         }
-    }
-    free(tofree);
+
+
+		free(token);
+	}
 }
 
 void usage()
@@ -60,8 +61,6 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
     bm->numMessages = 1000000;
     bm->numProducers = 1;
     bm->numConsumers = 1;
-    bm->numTestMessages = 0;
-    bm->testMessageSizes = NULL;
     bm->testMessages = NULL;
 
     for (int i = 1;i < argc;i++)
@@ -91,10 +90,8 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
 
 void publishMessage(Benchmark *bm)
 {
-    int msgIndex = rand() % bm->numTestMessages;
-    const char *message = bm->testMessages[msgIndex];
-    size_t msgsize = bm->testMessageSizes[msgIndex];
-    kl_topic_publish(bm->topic, message, msgsize);
+    KLMessage **message = kl_array_random(bm->testMessages);
+    kl_topic_publish(bm->topic, message[0]->data, message[0]->size);
 }
 
 void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message)

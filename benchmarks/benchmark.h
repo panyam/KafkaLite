@@ -15,8 +15,8 @@ typedef struct Benchmark
     int numConsumers;
     int numTestMessages;
     char *testFileNames;
-    size_t *testMessageSizes;
-    char **testMessages;
+	KLArray *testMessageSizes;
+    KLArray *testMessages;
     size_t maxMessageSize;
     KLContext *context;
     KLTopic *topic;

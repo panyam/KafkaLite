@@ -87,6 +87,18 @@ void *kl_array_element_at(KLArray *array, int index)
 }
 
 /**
+ * Returns a random element.
+ */
+void *kl_array_random(KLArray *array)
+{
+	if (!array)
+		return NULL;
+
+    int msgIndex = rand() % array->count;
+	return array->buffer + (array->elemSize * msgIndex);
+}
+
+/**
  * Removes an element at a given index.
  */
 void kl_array_remove_at(KLArray *array, int index)
