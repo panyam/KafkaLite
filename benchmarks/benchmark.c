@@ -4,7 +4,7 @@
 void setup(Benchmark *bm)
 {
     loadTestFiles(bm);
-    rmdirs(bm->contextDir);
+    kl_rmdirs(bm->contextDir);
     bm->context = kl_context_open(bm->contextDir, NULL);
 	bm->topic = kl_topic_open(bm->context, "topic");
 }
@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
     parseArgs(benchmark, argc, argv);
     setup(benchmark);
 
-	long long beforeTime = current_timestamp();
+	long long beforeTime = kl_current_timestamp();
     test_1p_1c_1thread(benchmark);
-	long long afterTime = current_timestamp();
+	long long afterTime = kl_current_timestamp();
 	kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numTestMessages, afterTime - beforeTime);
 }
