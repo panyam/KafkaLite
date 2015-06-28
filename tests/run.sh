@@ -1,8 +1,8 @@
 #!/bin/sh
 
 rm -rf ../bld ; mkdir -p ../bld ; cd ../bld
-gcc -Wall -std=c99 -g -c ../src/*.c
+gcc -Wall -g -c -std=gnu99 ../src/*.c
 ar -cvq libkafkalite.a *.o
 cd -
-g++ -g *.cc main.c -I ../src/ ../bld/*.o -o ../bld/kltests -lcppunit 
+g++ -g *.cc main.c -I ../src/ ../bld/*.o -o ../bld/kltests -lcppunit  -lpthread
 ../bld/kltests

@@ -2,6 +2,10 @@
 #ifndef __KAFKA_LITE_FWD_DEFS_H__
 #define __KAFKA_LITE_FWD_DEFS_H__
 
+#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 500
+
+
 #include <inttypes.h>
 #include <time.h>
 #include <math.h>
