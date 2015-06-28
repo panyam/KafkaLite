@@ -14,11 +14,11 @@ void setup(Benchmark *bm)
  */
 void test_1p_1c_1thread(Benchmark *bm)
 {
-    int i = 0;
     KLIterator *iterator = kl_iterator_new(bm->context, "topic", 0);
     KLMessage *message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
 
     // produce and consume
+    int i = 0;
     for (;i < bm->leadAmount;i++)
     {
         publishMessage(bm);

@@ -338,10 +338,11 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
         outCount = endIndex - index;
     }
 
+    int totalOutCount = 0;
     int index1 = index;
     int index2 = topic->flushedAtIndex;
-    int index3 = endIndex;
-    int totalOutCount = 0;
+	if (index2 > endIndex)
+		index2 = endIndex;
     if (index1 < index2)
     {
         // index1 to index2 is on disk so read from disk
@@ -356,6 +357,7 @@ int kl_topic_get_message_info(KLTopic *topic, int index, KLMessageHeader *out, i
     }
 
     // index2 to index3 is on the cache
+    int index3 = endIndex;
     if (index2 < index3)
     {
         outCount = index3 - index2;

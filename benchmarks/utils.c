@@ -51,6 +51,8 @@ void usage()
     printf("        -m    Number of messages to publish\n");
     printf("        -p    Number of producers\n");
     printf("        -c    Number of consumers\n");
+    printf("        -t    Comma separated names of test message files that will be published randomly\n");
+    printf("        -l    The number of messages by which the consumer will lag the publisher.\n");
     exit(1);
 }
 
@@ -71,6 +73,9 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
         } else if (strcmp(argv[i], "-c") == 0)
         {
             bm->numConsumers = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-l") == 0)
+        {
+            bm->leadAmount = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-p") == 0)
         {
             bm->numProducers = atoi(argv[++i]);
