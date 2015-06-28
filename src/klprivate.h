@@ -6,92 +6,92 @@
 
 struct KLContext
 {
-	/**
-	 * Base dir where all messages are written to.
-	 */
-	char *baseDir;
+    /**
+     * Base dir where all messages are written to.
+     */
+    char *baseDir;
 
-	/**
-	 * Directory where topics are saved.
-	 */
-	char *topicsDir;
+    /**
+     * Directory where topics are saved.
+     */
+    char *topicsDir;
 
-	/**
-	 * The factory to manage locks etc.
-	 */
-	KLLockManager *lockManager;
+    /**
+     * The factory to manage locks etc.
+     */
+    KLLockManager *lockManager;
 
-	/**
-	 * Topics in this group.
-	 */
-	KLArray *topics;
+    /**
+     * Topics in this group.
+     */
+    KLArray *topics;
 
-	/**
-	 * The mutex to safeguard the list of topics in this group.
-	 */
-	void *topicsMutex;
+    /**
+     * The mutex to safeguard the list of topics in this group.
+     */
+    void *topicsMutex;
 };
 
 struct KLTopic
 {
-	/**
-	 * Context to which this topic belongs.
-	 */
-	KLContext *context;
+    /**
+     * Context to which this topic belongs.
+     */
+    KLContext *context;
 
-	/**
-	 * Name of the topic.
-	 */
-	char *name;
+    /**
+     * Name of the topic.
+     */
+    char *name;
 
-	/**
-	 * Number of messages in the topic.
-	 */
-	size_t currIndex;
+    /**
+     * Number of messages in the topic.
+     */
+    size_t currIndex;
 
-	/**
-	 * Current message offset.
-	 */
-	size_t currOffset;
+    /**
+     * Current message offset.
+     */
+    size_t currOffset;
 
-	/**
-	 * The last offset at which a flush happened.
-	 */
-	size_t flushedAtIndex;
+    /**
+     * The last offset at which a flush happened.
+     */
+    size_t flushedAtIndex;
 
-	/**
-	 * The last offset at which a flush happened.
-	 */
-	size_t flushedAtOffset;
+    /**
+     * The last offset at which a flush happened.
+     */
+    size_t flushedAtOffset;
 
-	/**
-	 * Seperate data, index and metadata file per topic.
-	 */
-	int dataFile;
-	int indexFile;
-	int metadataFile;
+    /**
+     * Seperate data, index and metadata file per topic.
+     */
+    int dataFile;
+    int indexFile;
+    int metadataFile;
 
-	/**
-	 * Buffers to write data to prevent frequent writes to disk.
-	 */
-	KLBuffer *dataBuffer;
-	KLBuffer *indexBuffer;
+    /**
+     * Buffers to write data to prevent frequent writes to disk.
+     */
+    KLBuffer *dataBuffer;
+    KLBuffer *indexBuffer;
 
-	/**
-	 * Only flush to disk when the number of published messages exceeds this
-	 * threshold (in bytes).
-	 */
-	size_t flushThreshold;
+    /**
+     * Only flush to disk when the number of published messages exceeds this
+     * threshold (in bytes).
+     */
+    size_t flushThreshold;
 
-	/**
-	 * Reference count of this topic.
-	 */
-	int refCount;
+    /**
+     * Reference count of this topic.
+     */
+    int refCount;
 
-	/**
-	 * A lock for the file positions for each of the topic files.
-	 */
-	void *filePosLock;
+    /**
+     * A lock for the file positions for each of the topic files.
+     */
+    void *filePosLock;
 };
 
 /**
@@ -99,17 +99,17 @@ struct KLTopic
  */
 struct KLIterator
 {
-	KLTopic *topic;
+    KLTopic *topic;
 
-	/**
-	 * Current offset pointed by the interator.
-	 */
-	size_t currIndex;
+    /**
+     * Current offset pointed by the interator.
+     */
+    size_t currIndex;
 
-	/**
-	 * A buffer holding info about 
-	 */
-	KLMessageHeader currMessageHeader;
+    /**
+     * A buffer holding info about 
+     */
+    KLMessageHeader currMessageHeader;
 };
 
 
