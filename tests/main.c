@@ -17,16 +17,16 @@ int main(int argc, char* argv[])
     testresult.addListener (&progress);
  
     // insert test-suite at test-runner by registry
-	bool alltests = true;
-	if (alltests)
-	{
-    	CPPUNIT_NS::TestRunner testrunner;
-    	testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
-    	testrunner.run(testresult);
-	} else {
-		CppUnit::TestCaller<KLTopicTests> test("test_kl_topic_restart", &KLTopicTests::test_kl_topic_restart);
-		test.run(&testresult);
-	}
+    bool alltests = true;
+    if (alltests)
+    {
+        CPPUNIT_NS::TestRunner testrunner;
+        testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
+        testrunner.run(testresult);
+    } else {
+        CppUnit::TestCaller<KLTopicTests> test("test_kl_topic_restart", &KLTopicTests::test_kl_topic_restart);
+        test.run(&testresult);
+    }
  
     // output results in compiler-format
     CPPUNIT_NS::CompilerOutputter compileroutputter(&collectedresults, std::cerr);
