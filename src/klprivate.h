@@ -92,6 +92,9 @@ struct KLTopic
      * A lock for the file positions for each of the topic files.
      */
     void *filePosLock;
+	off_t filePos;
+	bool usePread;
+	bool usePwrite;
 };
 
 /**

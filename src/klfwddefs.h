@@ -3,8 +3,9 @@
 #define __KAFKA_LITE_FWD_DEFS_H__
 
 #define _POSIX_C_SOURCE 200809L
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 500
-
+#endif
 
 #include <inttypes.h>
 #include <time.h>
