@@ -595,7 +595,6 @@ PACKAGE_STRING='libkafkalite 0.0.1'
 PACKAGE_BUGREPORT='sri.panyam@gmail.com'
 PACKAGE_URL=''
 
-ac_config_libobj_dir=portable
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2423,7 +2422,7 @@ ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
-
+# AC_CONFIG_LIBOBJ_DIR([portable])
 
 
 am__api_version='1.14'
