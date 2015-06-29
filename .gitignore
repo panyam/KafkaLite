@@ -39,9 +39,9 @@ config.log
 config.status
 *.log
 Makefile
-benchmarks/Makefile
 config.h
 src/.deps/
-src/Makefile
 stamp-h1
+benchmarks/Makefile
+src/Makefile
 tests/Makefile
