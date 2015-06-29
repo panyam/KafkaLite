@@ -91,3 +91,14 @@ Coming soon - packaging and brewing it up!
 	This closes the context and all associated topics.   Any handle to this
 	context or topics assigned within this context (with kl_topic_open) is now
 	unusable.
+
+## Things to do
+
+1. Finish up all the benchmarks.
+2. Implement caching of records for speeding up consumers and try a few
+   different strategies (gut feel says LRU but would depend a lot on consumer
+   patterns).
+3. Make file and thread APIs more abstract to enable use of native constructs
+   (such as WinThreads, GCD etc).
+4. Lot more tests for things like reading and writing batch records.
+5. Focus on improving flush times on lower memory usage.
