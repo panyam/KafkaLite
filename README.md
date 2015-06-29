@@ -18,9 +18,9 @@ Coming soon - packaging and brewing it up!
 	KLContext *context = kl_context_new("/tmp/kafka/", NULL);
 	```
 
-	A KLContext manages one or topics into which messages can be published into
+	A KLContext manages one or more topics into which messages can be published into
 	and consumed from.  A KLContext can be thought of as a topic group where
-	messages being written is serialized.   This allows the client to configure
+	messages being written are serialized.   This allows the client to configure
 	the level of concurrent writes to a set of topics (to increase parallel
 	publishes, new contexts can simply be created).   Messages can be consumed
 	concurrently.
