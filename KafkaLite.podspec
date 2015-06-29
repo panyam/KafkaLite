@@ -17,10 +17,11 @@ Pod::Spec.new do |s|
 
   s.name         = "KafkaLite"
   s.version      = "0.0.5"
-  s.summary      = "A simple doubly linked list implementation"
+  s.summary      = "A light weight embeddable Kafka"
 
   s.description  = <<-DESC
-  				   A raw C based implementation of a doubly linked list implementation to build from.
+  				   A light weight and embeddable implementation of a subset of kafka to enable 
+				   high speed event stream processing with a low memory footprint.
                    DESC
   s.homepage     = "https://github.com/panyam/KafkaLite"
   s.license      = "Apache License, Version 2.0"
