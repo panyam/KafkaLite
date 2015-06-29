@@ -38,7 +38,7 @@ void KLIteratorTests::test_kl_iterator_consume()
 		CPPUNIT_ASSERT(result);
 
 		// get the message size
-		size_t msgsize = kl_iterator_msgsize(iterator);
+		UInt64 msgsize = kl_iterator_msgsize(iterator);
 		KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize + 1);
 		kl_iterator_message(iterator, message);
 		message->data[msgsize] = 0;

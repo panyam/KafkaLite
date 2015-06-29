@@ -47,22 +47,22 @@ struct KLTopic
     /**
      * Number of messages in the topic.
      */
-    size_t currIndex;
+    UInt64 currIndex;
 
     /**
      * Current message offset.
      */
-    size_t currOffset;
+    UInt64 currOffset;
 
     /**
      * The last offset at which a flush happened.
      */
-    size_t flushedAtIndex;
+    UInt64 flushedAtIndex;
 
     /**
      * The last offset at which a flush happened.
      */
-    size_t flushedAtOffset;
+    UInt64 flushedAtOffset;
 
     /**
      * Seperate data, index and metadata file per topic.
@@ -81,7 +81,7 @@ struct KLTopic
      * Only flush to disk when the number of published messages exceeds this
      * threshold (in bytes).
      */
-    size_t flushThreshold;
+    UInt64 flushThreshold;
 
     /**
      * Reference count of this topic.
@@ -92,7 +92,7 @@ struct KLTopic
      * A lock for the file positions for each of the topic files.
      */
     void *filePosLock;
-	off_t filePos;
+	Int64 filePos;
 	bool usePread;
 	bool usePwrite;
 };
@@ -107,7 +107,7 @@ struct KLIterator
     /**
      * Current offset pointed by the interator.
      */
-    size_t currIndex;
+    UInt64 currIndex;
 
     /**
      * A buffer holding info about 

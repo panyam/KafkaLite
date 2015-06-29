@@ -3,16 +3,16 @@
 
 struct KLArray
 {
-	size_t elemSize;
-	int capacity;
-	int count;
+	UInt64 elemSize;
+	UInt64 capacity;
+	UInt64 count;
 	char *buffer;
 };
 
 /**
  * Creates a new array.
  */
-KLArray *kl_array_new(size_t elemSize, int capacity)
+KLArray *kl_array_new(UInt64 elemSize, UInt64 capacity)
 {
 	KLArray *out = calloc(1, sizeof(KLArray));
 	out->elemSize = elemSize;
@@ -39,7 +39,7 @@ void kl_array_destroy(KLArray *array)
 /**
  * Gets the number of elements in the array.
  */
-unsigned kl_array_count(KLArray *array)
+UInt64 kl_array_count(KLArray *array)
 {
 	return array ? array->count : 0;
 }
@@ -47,7 +47,7 @@ unsigned kl_array_count(KLArray *array)
 /**
  * Gets the capacity of the array (in number of elements).
  */
-unsigned kl_array_capacity(KLArray *array)
+UInt64 kl_array_capacity(KLArray *array)
 {
 	return array ? array->capacity : 0;
 }
@@ -56,11 +56,11 @@ unsigned kl_array_capacity(KLArray *array)
  * Ensures that there are enough space for the extra number of elements in the
  * array.
  */
-bool kl_array_ensure_capacity(KLArray *array, unsigned extraCapacity)
+bool kl_array_ensure_capacity(KLArray *array, UInt64 extraCapacity)
 {
 	if (array == NULL)
 		return 0;
-	int newCapacity = array->count + extraCapacity;
+	UInt64 newCapacity = array->count + extraCapacity;
  	if (array->capacity < newCapacity)
 	{
 		newCapacity *= 1.25;
@@ -73,7 +73,7 @@ bool kl_array_ensure_capacity(KLArray *array, unsigned extraCapacity)
 /**
  * Returns the size of each element in the array
  */
-size_t kl_array_element_size(KLArray *array)
+UInt64 kl_array_element_size(KLArray *array)
 {
 	return array ? array->elemSize : 0;
 }
@@ -81,7 +81,7 @@ size_t kl_array_element_size(KLArray *array)
 /**
  * Returns a pointer to the element at a particular index in the array.
  */
-void *kl_array_element_at(KLArray *array, int index)
+void *kl_array_element_at(KLArray *array, Int64 index)
 {
 	return array ? array->buffer + (array->elemSize * index) : NULL;
 }
@@ -94,22 +94,22 @@ void *kl_array_random(KLArray *array)
 	if (!array)
 		return NULL;
 
-    int msgIndex = rand() % array->count;
+    Int64 msgIndex = rand() % array->count;
 	return array->buffer + (array->elemSize * msgIndex);
 }
 
 /**
  * Removes an element at a given index.
  */
-void kl_array_remove_at(KLArray *array, int index)
+void kl_array_remove_at(KLArray *array, Int64 index)
 {
 	if (array && index >= 0 && index < array->count)
 	{
 		if (index != array->count - 1)
 		{
-			unsigned srcIndex = array->elemSize * (index + 1);
-			unsigned dstIndex = array->elemSize * index;
-			unsigned remElems = array->count - (index + 1);
+			Int64 srcIndex = array->elemSize * (index + 1);
+			Int64 dstIndex = array->elemSize * index;
+			Int64 remElems = array->count - (index + 1);
 			memcpy(array->buffer + dstIndex, array->buffer + srcIndex, remElems * array->elemSize);
 		}
 		array->count--;
@@ -120,7 +120,7 @@ void kl_array_remove_at(KLArray *array, int index)
  * Inserts a value at a given index and returns the pointer to it 
  * so the caller can fill it as they see fit.
  */
-void *kl_array_insert_at(KLArray *array, int index)
+void *kl_array_insert_at(KLArray *array, Int64 index)
 {
 	if (!kl_array_ensure_capacity(array, 1))
 		return NULL;
@@ -130,9 +130,9 @@ void *kl_array_insert_at(KLArray *array, int index)
 	{
 		out = array->buffer + (array->elemSize * array->count);
 	} else {
-		unsigned srcIndex = array->elemSize * index;
-		unsigned dstIndex = array->elemSize * (index + 1);
-		unsigned remElems = array->count - index;
+		UInt64 srcIndex = array->elemSize * index;
+		UInt64 dstIndex = array->elemSize * (index + 1);
+		UInt64 remElems = array->count - index;
 		memcpy(array->buffer + dstIndex, array->buffer + srcIndex, remElems * array->elemSize);
 	}
 	array->count++;

@@ -7,6 +7,9 @@ const long NUM_RAND_MAX = 100;
 
 int main()
 {
+	printf("Sizeof Int64: %d", sizeof(Int64));
+	printf("Sizeof UInt64: %d", sizeof(UInt64));
+		/*
     kl_rmdirs(TEST_DIR);
     KLContext *context = kl_context_open(TEST_DIR, NULL);
     KLTopic *topic = kl_topic_open(context, "topic");
@@ -21,7 +24,7 @@ int main()
         bool result = kl_iterator_forward(iterator);
 
         // get the message size
-        size_t msgsize = kl_iterator_msgsize(iterator);
+        UInt64 msgsize = kl_iterator_msgsize(iterator);
         KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize + 1);
         kl_iterator_message(iterator, message);
         message->data[msgsize] = 0;
@@ -38,5 +41,6 @@ int main()
         assert(strncmp(buffer, message->data, msgsize) == 0);
         free(message);
     }
+	*/
     return 0;
 }

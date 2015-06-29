@@ -14,8 +14,8 @@ extern "C" {
  */
 struct KLMessageHeader
 {
-	off_t offset;
-	size_t size;
+	Int64 offset;
+	UInt64 size;
 };
 
 /**
@@ -23,7 +23,7 @@ struct KLMessageHeader
  */
 struct KLMessage
 {
-	size_t size;
+	UInt64 size;
 	char data[];
 };
 
