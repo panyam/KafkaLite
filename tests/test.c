@@ -7,8 +7,8 @@ const long NUM_RAND_MAX = 100;
 
 int main()
 {
-	printf("Sizeof Int64: %d", sizeof(Int64));
-	printf("Sizeof UInt64: %d", sizeof(UInt64));
+	printf("Sizeof Int64: %d", sizeof(int64_t));
+	printf("Sizeof UInt64: %d", sizeof(uint64_t));
 		/*
     kl_rmdirs(TEST_DIR);
     KLContext *context = kl_context_open(TEST_DIR, NULL);
