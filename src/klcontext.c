@@ -56,7 +56,7 @@ void kl_context_close(KLContext *context)
 	if (context)
 	{
 		kl_log("\nClosing context...");
-		for (Int64 i = 0, count = kl_array_count(context->topics);i < count;i++)
+		for (off_t i = 0, count = kl_array_count(context->topics);i < count;i++)
 		{
 			// close the context
 			KLTopic *topic = (KLTopic *)kl_array_element_at(context->topics, i);

@@ -2,6 +2,7 @@
 #ifndef __KAFKA_LITE_FWD_DEFS_H__
 #define __KAFKA_LITE_FWD_DEFS_H__
 
+/*
 #define Int64 int64_t
 #define UInt64 uint64_t
 
@@ -13,12 +14,13 @@
 // #define Int64 NSInteger
 // #define UInt64 NSUInteger
 #else				// Treat __linux, __unix, __posix and the rest as posix for now
-
+*/
 #define _POSIX_C_SOURCE 200809L
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 500
 #endif
-#endif
+
+// #endif
 
 #include <inttypes.h>
 #include <time.h>

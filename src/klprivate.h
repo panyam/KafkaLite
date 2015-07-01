@@ -81,7 +81,7 @@ struct KLTopic
      * Only flush to disk when the number of published messages exceeds this
      * threshold (in bytes).
      */
-    UInt64 flushThreshold;
+    size_t flushThreshold;
 
     /**
      * Reference count of this topic.
@@ -92,7 +92,7 @@ struct KLTopic
      * A lock for the file positions for each of the topic files.
      */
     void *filePosLock;
-	Int64 filePos;
+	off_t filePos;
 	bool usePread;
 	bool usePwrite;
 };
@@ -107,7 +107,7 @@ struct KLIterator
     /**
      * Current offset pointed by the interator.
      */
-    UInt64 currIndex;
+    off_t currIndex;
 
     /**
      * A buffer holding info about 

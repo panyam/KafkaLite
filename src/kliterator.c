@@ -42,23 +42,23 @@ void kl_iterator_destroy(KLIterator *iterator)
 /**
  * Gets the current index pointed by the iterator.
  */
-UInt64 kl_iterator_index(KLIterator *iterator)
+size_t kl_iterator_index(KLIterator *iterator)
 {
-	return iterator ? iterator->currIndex : 0;
+	return iterator ? (size_t)iterator->currIndex : 0;
 }
 
 /**
  * Gets the current offset in the iterator.
  */
-UInt64 kl_iterator_offset(KLIterator *iterator)
+size_t kl_iterator_offset(KLIterator *iterator)
 {
-	return iterator ? iterator->currMessageHeader.offset : 0;
+	return iterator ? (size_t)iterator->currMessageHeader.offset : 0;
 }
 
 /**
  * Gets the size of the message currently pointed by the iterator
  */
-UInt64 kl_iterator_msgsize(KLIterator *iterator)
+size_t kl_iterator_msgsize(KLIterator *iterator)
 {
 	return iterator ? iterator->currMessageHeader.size : 0;
 }
@@ -114,7 +114,7 @@ KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator)
  * provide a buffer big enough to accomodate the data (whose size can be 
  * fetched from the kl_iterator_current_metadata method).
  */
-UInt64 kl_iterator_message(KLIterator *iterator, KLMessage *message)
+size_t kl_iterator_message(KLIterator *iterator, KLMessage *message)
 {
 	return kl_topic_get_messages(iterator->topic, &iterator->currMessageHeader, 1, message);
 }

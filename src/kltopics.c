@@ -62,7 +62,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 
     // from the index file gather the number of messages and the num
 
-    UInt64 values[2] = {0};
+    uint64_t values[2] = {0};
     kl_read_file(topic, topic->metadataFile, values, sizeof(values), 0);
     topic->currIndex = values[0];
     topic->currOffset = values[1];
@@ -199,7 +199,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
         // first!
 
         // write to the buffer first
-		UInt64 msgsize64 = msgsize;
+		uint64_t msgsize64 = msgsize;
         kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize64), sizeof(msgsize64));
         kl_buffer_append(topic->dataBuffer, msg, msgsize);
 
@@ -215,7 +215,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
         {
             // write the message
             off_t off = topic->currOffset;
-			UInt64 msgsize64 = msgsize;
+			uint64_t msgsize64 = msgsize;
             pwrite(topic->dataFile, (const char *)(&msgsize64), sizeof(msgsize64), off);
             off += sizeof(msgsize);
             pwrite(topic->dataFile, msg, msgsize, off);

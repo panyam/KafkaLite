@@ -103,7 +103,7 @@ void kl_buffer_append(KLBuffer *buffer, const char *data, size_t datasize)
  * Copy a portion of the buffer to the output buffer and returns the number of
  * bytes copied.
  */
-size_t kl_buffer_copy(KLBuffer *buffer, Int64 srcOffset, char *output, size_t numBytes)
+size_t kl_buffer_copy(KLBuffer *buffer, off_t srcOffset, char *output, size_t numBytes)
 {
 	memcpy((void *)output, (void *)(buffer->data + srcOffset), numBytes);
 	// TODO: check bounds
