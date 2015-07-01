@@ -10,9 +10,10 @@ void setup(Benchmark *bm)
 }
 
 /**
- * Single producer and single consumer
+ * Single threaded test with single producer and one or more consumers
+ * with each actor starting after a certain number of messages.
  */
-void test_1p_1c_1thread(Benchmark *bm)
+void test_single_thread(Benchmark *bm)
 {
     KLIterator *iterator = kl_iterator_new(bm->context, "topic", 0);
     KLMessage *message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
     setup(benchmark);
 
     long long beforeTime = kl_current_timestamp();
-    test_1p_1c_1thread(benchmark);
+    test_single_thread(benchmark);
     long long afterTime = kl_current_timestamp();
     kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numMessages, afterTime - beforeTime);
 }

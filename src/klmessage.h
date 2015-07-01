@@ -15,7 +15,7 @@ extern "C" {
 struct KLMessageHeader
 {
 	Int64 offset;
-	UInt64 size;
+	uint64_t size;
 };
 
 /**
