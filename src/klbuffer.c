@@ -4,15 +4,15 @@
 
 struct KLBuffer
 {
-	UInt64 capacity;
-	UInt64 length;
+	size_t capacity;
+	size_t length;
 	char *data;
 };
 
 /**
  * Creates a new buffer.
  */
-KLBuffer *kl_buffer_new(UInt64 capacity)
+KLBuffer *kl_buffer_new(size_t capacity)
 {
 	KLBuffer *out = calloc(1, sizeof(KLBuffer));
 	if (capacity <= 0)
@@ -48,7 +48,7 @@ void kl_buffer_reset(KLBuffer *buffer)
 /**
  * Gets the number of bytes in the buffer.
  */
-UInt64 kl_buffer_size(KLBuffer *buffer)
+size_t kl_buffer_size(KLBuffer *buffer)
 {
 	return buffer ? buffer->length : 0;
 }
@@ -56,7 +56,7 @@ UInt64 kl_buffer_size(KLBuffer *buffer)
 /**
  * Gets the available capacity of the buffer.
  */
-UInt64 kl_buffer_capacity(KLBuffer *buffer)
+size_t kl_buffer_capacity(KLBuffer *buffer)
 {
 	return buffer ? buffer->capacity : 0;
 }
@@ -65,11 +65,11 @@ UInt64 kl_buffer_capacity(KLBuffer *buffer)
  * Ensures that there are enough space for the extra number of 
  * bytes in the buffer.
  */
-bool kl_buffer_ensure_capacity(KLBuffer *buffer, UInt64 extraBytes)
+bool kl_buffer_ensure_capacity(KLBuffer *buffer, size_t extraBytes)
 {
 	if (!buffer)
 		return false;
-	UInt64 newCapacity = buffer->length + extraBytes;
+	size_t newCapacity = buffer->length + extraBytes;
  	if (buffer->capacity < newCapacity)
 	{
 		newCapacity *= 1.25;
@@ -90,7 +90,7 @@ char *kl_buffer_bytes(KLBuffer *buffer)
 /**
  * Appends data to the end of the buffer.
  */
-void kl_buffer_append(KLBuffer *buffer, const char *data, UInt64 datasize)
+void kl_buffer_append(KLBuffer *buffer, const char *data, size_t datasize)
 {
 	if (kl_buffer_ensure_capacity(buffer, datasize))
 	{
@@ -103,7 +103,7 @@ void kl_buffer_append(KLBuffer *buffer, const char *data, UInt64 datasize)
  * Copy a portion of the buffer to the output buffer and returns the number of
  * bytes copied.
  */
-UInt64 kl_buffer_copy(KLBuffer *buffer, Int64 srcOffset, char *output, UInt64 numBytes)
+size_t kl_buffer_copy(KLBuffer *buffer, Int64 srcOffset, char *output, size_t numBytes)
 {
 	memcpy((void *)output, (void *)(buffer->data + srcOffset), numBytes);
 	// TODO: check bounds

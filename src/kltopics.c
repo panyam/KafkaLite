@@ -4,10 +4,10 @@
 #define ltell(fdes)        lseek((fdes), 0, SEEK_CUR)
 
 void kl_topic_flush(KLTopic *topic);
-UInt64 kl_topic_publish_single(KLTopic *topic, const char *msg, UInt64 msgsize);
-Int64 kl_topic_find_unlocked(KLContextRef context, const char *name);
+size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize);
+off_t kl_topic_find_unlocked(KLContextRef context, const char *name);
 
-UInt64 kl_read_file(KLTopic *topic, int fd, void *buff, UInt64 size, Int64 offset)
+size_t kl_read_file(KLTopic *topic, int fd, void *buff, size_t size, off_t offset)
 {
     if (topic->usePread)
     {
@@ -110,7 +110,7 @@ KLTopic *kl_topic_open(KLContextRef context, const char *name)
     // see if this topic is already opened
     // if so then just increment its count
     KLTopic *topic = NULL;
-    Int64 index = kl_topic_find_unlocked(context, name);
+    off_t index = kl_topic_find_unlocked(context, name);
     if (index < 0)
     {
         topic = kl_array_insert_at(context->topics, -1);
@@ -137,7 +137,7 @@ bool kl_topic_close(KLTopic *topic)
     KL_MUTEX_LOCK(context->lockManager, context->topicsMutex);
     // see if this topic is already opened
     // if so then just increment its count
-    Int64 index = kl_topic_find_unlocked(context, topic->name);
+    off_t index = kl_topic_find_unlocked(context, topic->name);
     if (index >= 0)
     {
         topic = kl_array_element_at(context->topics, index);
@@ -156,12 +156,12 @@ bool kl_topic_close(KLTopic *topic)
 /**
  * Publish a single message.
  */
-UInt64 kl_topic_publish(KLTopic *topic, const char *msg, UInt64 msgsize)
+size_t kl_topic_publish(KLTopic *topic, const char *msg, size_t msgsize)
 {
     if (!topic) return 0;
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
-    UInt64 out = kl_topic_publish_single(topic, msg, msgsize);
+    size_t out = kl_topic_publish_single(topic, msg, msgsize);
     KL_MUTEX_UNLOCK(context->lockManager, topic->filePosLock);
     return out;
 }
@@ -169,28 +169,28 @@ UInt64 kl_topic_publish(KLTopic *topic, const char *msg, UInt64 msgsize)
 /**
  * Publish a batch of messages to the topic.
  */
-UInt64 kl_topic_publish_multi(KLTopic *topic, UInt64 numMessages, const char *msgs[], UInt64 *msgsizes)
+size_t kl_topic_publish_multi(KLTopic *topic, size_t numMessages, const char *msgs[], size_t *msgsizes)
 {
     if (!topic) return 0;
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
-    UInt64 out = 0;
-    for (Int64 i = 0;i < numMessages;i++)
+    size_t out = 0;
+    for (off_t i = 0;i < numMessages;i++)
     {
-        out = kl_topic_publish_single(topic, msgs[i], msgsizes[i]);
+        out += kl_topic_publish_single(topic, msgs[i], msgsizes[i]);
     }
     KL_MUTEX_UNLOCK(context->lockManager, topic->filePosLock);
     return out;
 }
 
-UInt64 kl_topic_publish_single(KLTopic *topic, const char *msg, UInt64 msgsize)
+size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 {
     KLMessageHeader info;
     info.offset = topic->currOffset;
     info.size = msgsize;
 
-    UInt64 payloadSize = sizeof(msgsize) + msgsize;
-    UInt64 unflushedLength = 0;
+    size_t payloadSize = sizeof(msgsize) + msgsize;
+    size_t unflushedLength = 0;
 
     if (topic->dataBuffer)
     {
@@ -199,7 +199,8 @@ UInt64 kl_topic_publish_single(KLTopic *topic, const char *msg, UInt64 msgsize)
         // first!
 
         // write to the buffer first
-        kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize), sizeof(msgsize));
+		UInt64 msgsize64 = msgsize;
+        kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize64), sizeof(msgsize64));
         kl_buffer_append(topic->dataBuffer, msg, msgsize);
 
         // write the message info first before updating the header
@@ -213,8 +214,9 @@ UInt64 kl_topic_publish_single(KLTopic *topic, const char *msg, UInt64 msgsize)
         if (topic->usePwrite)
         {
             // write the message
-            Int64 off = topic->currOffset;
-            pwrite(topic->dataFile, (const char *)(&msgsize), sizeof(msgsize), off);
+            off_t off = topic->currOffset;
+			UInt64 msgsize64 = msgsize;
+            pwrite(topic->dataFile, (const char *)(&msgsize64), sizeof(msgsize64), off);
             off += sizeof(msgsize);
             pwrite(topic->dataFile, msg, msgsize, off);
 
@@ -239,7 +241,7 @@ UInt64 kl_topic_publish_single(KLTopic *topic, const char *msg, UInt64 msgsize)
         write(topic->metadataFile, &topic->currIndex, sizeof(topic->currIndex));
         write(topic->metadataFile, &topic->currOffset, sizeof(topic->currOffset));
 
-        unflushedLength = topic->currOffset - topic->flushedAtOffset;
+        unflushedLength = (size_t)(topic->currOffset - topic->flushedAtOffset);
     }
 
     // if we have not flushed in while then do it
@@ -255,14 +257,14 @@ void kl_topic_flush(KLTopic *topic)
 {
     if (topic->dataBuffer)
     {
-        UInt64 dataLength = kl_buffer_size(topic->dataBuffer);
+        size_t dataLength = kl_buffer_size(topic->dataBuffer);
         if (dataLength > 0)
         {
             lseek(topic->dataFile, topic->flushedAtOffset, SEEK_SET);
             write(topic->dataFile, kl_buffer_bytes(topic->dataBuffer), dataLength);
             kl_buffer_reset(topic->dataBuffer);
 
-            UInt64 indexLength = kl_buffer_size(topic->indexBuffer);
+            size_t indexLength = kl_buffer_size(topic->indexBuffer);
             lseek(topic->indexFile, topic->flushedAtIndex * sizeof(KLMessageHeader), SEEK_SET);
             write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
             kl_buffer_reset(topic->indexBuffer);
@@ -288,14 +290,14 @@ void kl_topic_flush(KLTopic *topic)
 /**
  * Returns the number of messages in this topic.
  */
-UInt64 kl_topic_message_count(KLTopic *topic)
+size_t kl_topic_message_count(KLTopic *topic)
 {
     if (!topic)
         return 0;
     KL_MUTEX_LOCK(topic->context->lockManager, topic->filePosLock);
-    Int64 out = topic->currIndex;
+    off_t out = topic->currIndex;
     KL_MUTEX_UNLOCK(topic->context->lockManager, topic->filePosLock);
-    return out;
+    return (size_t)out;
 }
 
 /**
@@ -303,26 +305,26 @@ UInt64 kl_topic_message_count(KLTopic *topic)
  * The output buffer "out" must point to a buffer that has enough space for
  * outCount KLMessageHeader objects.
  */
-UInt64 kl_topic_get_message_info(KLTopic *topic, Int64 index, KLMessageHeader *out, UInt64 outCount)
+size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *out, size_t outCount)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
-    Int64 endIndex = outCount + index;
+    off_t endIndex = outCount + index;
     if (endIndex > topic->currIndex)
     {
         endIndex = topic->currIndex;
-        outCount = endIndex - index;
+        outCount = (size_t)(endIndex - index);
     }
 
-    UInt64 totalOutCount = 0;
-    Int64 index1 = index;
-    Int64 index2 = topic->flushedAtIndex;
+    size_t totalOutCount = 0;
+    off_t index1 = index;
+    off_t index2 = topic->flushedAtIndex;
     if (index2 > endIndex)
         index2 = endIndex;
     if (index1 < index2)
     {
         // index1 to index2 is on disk so read from disk
-        outCount = index2 - index1;
+        outCount = (size_t)(index2 - index1);
         kl_read_file(topic, topic->indexFile,
                      out, outCount * sizeof(KLMessageHeader),
                      index1 * sizeof(KLMessageHeader));
@@ -333,10 +335,10 @@ UInt64 kl_topic_get_message_info(KLTopic *topic, Int64 index, KLMessageHeader *o
     }
 
     // index2 to index3 is on the cache
-    Int64 index3 = endIndex;
+    off_t index3 = endIndex;
     if (index2 < index3)
     {
-        outCount = index3 - index2;
+        outCount = (size_t)(index3 - index2);
         kl_buffer_copy(topic->indexBuffer,
                         (index2 - topic->flushedAtIndex) * sizeof(KLMessageHeader),
                         (char *)out, outCount * sizeof(KLMessageHeader));
@@ -348,23 +350,23 @@ UInt64 kl_topic_get_message_info(KLTopic *topic, Int64 index, KLMessageHeader *o
     return totalOutCount;
 }
 
-UInt64 kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, UInt64 numMessages, KLMessage *outMessages)
+size_t kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, size_t numMessages, KLMessage *outMessages)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
 
     // calculate the total read size and do one big read instead of multiple small ones
-    UInt64 totalReadSize = numMessages * sizeof(KLMessage);
-    for (Int64 i = 0;i < numMessages;i++)
+    size_t totalReadSize = numMessages * sizeof(KLMessage);
+    for (off_t i = 0;i < numMessages;i++)
         totalReadSize += headers[i].size;
 
     KLMessageHeader *const firstMsgHeader = headers;
-    Int64 endOffset = firstMsgHeader->offset + totalReadSize;
+    off_t endOffset = firstMsgHeader->offset + totalReadSize;
     if (endOffset > topic->currOffset)
             endOffset = topic->currOffset;
 
-    Int64 offset1 = firstMsgHeader->offset;
-    Int64 offset2 = topic->flushedAtOffset;
+    off_t offset1 = firstMsgHeader->offset;
+    off_t offset2 = topic->flushedAtOffset;
     if (offset2 > endOffset)
         offset2 = endOffset;;
 
@@ -372,17 +374,17 @@ UInt64 kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, UIn
     if (offset1 < offset2)
     {
         // read the first bit from the file
-        kl_read_file(topic, topic->dataFile, outBuffer, offset2 - offset1, offset1);
+        kl_read_file(topic, topic->dataFile, outBuffer, (size_t)(offset2 - offset1), offset1);
         outBuffer += (offset2 - offset1);
     } else {
         offset2 = offset1;
     }
 
     // read the rest from the buffer
-    Int64 offset3 = endOffset;
+    off_t offset3 = endOffset;
     if (offset2 < offset3)
     {
-        kl_buffer_copy(topic->dataBuffer, offset2 - topic->flushedAtOffset, outBuffer, offset3 - offset2);
+        kl_buffer_copy(topic->dataBuffer, offset2 - topic->flushedAtOffset, outBuffer, (size_t)(offset3 - offset2));
     }
 
     KL_MUTEX_UNLOCK(context->lockManager, topic->filePosLock);
@@ -392,17 +394,17 @@ UInt64 kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, UIn
 /**
  * Finds a topic by name and returns its index.
  */
-Int64 kl_topic_find(KLContextRef context, const char *name)
+off_t kl_topic_find(KLContextRef context, const char *name)
 {
     KL_MUTEX_LOCK(context->lockManager, context->topicsMutex);
-    Int64 index = kl_topic_find_unlocked(context, name);
+    off_t index = kl_topic_find_unlocked(context, name);
     KL_MUTEX_UNLOCK(context->lockManager, context->topicsMutex);
     return index;
 }
 
-Int64 kl_topic_find_unlocked(KLContextRef context, const char *name)
+off_t kl_topic_find_unlocked(KLContextRef context, const char *name)
 {
-    for (Int64 i = 0, count = kl_array_count(context->topics);i < count;i++)
+    for (off_t i = 0, count = kl_array_count(context->topics);i < count;i++)
     {
         KLTopic *topic = (KLTopic *)kl_array_element_at(context->topics, i);
         if (strcmp(topic->name, name) == 0)

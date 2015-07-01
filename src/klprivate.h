@@ -47,22 +47,22 @@ struct KLTopic
     /**
      * Number of messages in the topic.
      */
-    UInt64 currIndex;
+    off_t currIndex;
+
+    /**
+     * The last offset at which a flush happened.
+     */
+    off_t flushedAtIndex;
 
     /**
      * Current message offset.
      */
-    UInt64 currOffset;
+    size_t currOffset;
 
     /**
      * The last offset at which a flush happened.
      */
-    UInt64 flushedAtIndex;
-
-    /**
-     * The last offset at which a flush happened.
-     */
-    UInt64 flushedAtOffset;
+    size_t flushedAtOffset;
 
     /**
      * Seperate data, index and metadata file per topic.

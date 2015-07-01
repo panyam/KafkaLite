@@ -28,29 +28,29 @@ extern bool kl_topic_close(KLTopic *topic);
 /**
  * Finds a topic by name and returns its index.
  */
-extern Int64 kl_topic_find(KLContextRef context, const char *name);
+extern off_t kl_topic_find(KLContextRef context, const char *name);
 
 /**
  * Return the number of messages in the topic.
  */
-extern UInt64 kl_topic_message_count(KLTopic *topic);
+extern size_t kl_topic_message_count(KLTopic *topic);
 
 /**
  * Publish a single message to the topic.
  */
-extern UInt64 kl_topic_publish(KLTopic *topic, const char *message, UInt64 msgsize);
+extern size_t kl_topic_publish(KLTopic *topic, const char *message, size_t msgsize);
 
 /**
  * Publish a batch of messages to the topic.
  */
-extern UInt64 kl_topic_publish_multi(KLTopic *topic, UInt64 numMessages, const char *msgs[], UInt64 *msgsizes);
+extern size_t kl_topic_publish_multi(KLTopic *topic, size_t numMessages, const char *msgs[], size_t *msgsizes);
 
 /**
  * Get the info about count number of messages starting from a particular message index.
  * The output buffer "out" must point to a buffer that has enough space for
  * outCount KLMessageHeader objects.
  */
-extern UInt64 kl_topic_get_message_info(KLTopic *topic, Int64 index, KLMessageHeader *out, UInt64 outCount);
+extern size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *out, size_t outCount);
 
 /**
  * Get a list of messages beginning at a particular index.
@@ -65,7 +65,7 @@ extern UInt64 kl_topic_get_message_info(KLTopic *topic, Int64 index, KLMessageHe
  *
  * May be make this a private API - so only consumers have access to this.
  */
-extern UInt64 kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, UInt64 numMessages, KLMessage *outMessages);
+extern size_t kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, size_t numMessages, KLMessage *outMessages);
 
 extern void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name);
 extern void kl_topic_finalize(KLTopic *topic);
