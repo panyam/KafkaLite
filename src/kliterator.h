@@ -22,17 +22,17 @@ extern void kl_iterator_destroy(KLIterator *iterator);
 /**
  * Gets the current index pointed by the iterator.
  */
-extern size_t kl_iterator_index(KLIterator *iterator);
+extern UInt64 kl_iterator_index(KLIterator *iterator);
 
 /**
  * Gets the current offset in the iterator.
  */
-extern size_t kl_iterator_offset(KLIterator *iterator);
+extern UInt64 kl_iterator_offset(KLIterator *iterator);
 
 /**
  * Gets the size of the message currently pointed by the iterator
  */
-extern size_t kl_iterator_msgsize(KLIterator *iterator);
+extern UInt64 kl_iterator_msgsize(KLIterator *iterator);
 
 /**
  * Moves the iterator forward if there are any items left.
@@ -56,7 +56,7 @@ extern KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator);
  * provide a buffer big enough to accomodate the data (whose size can be 
  * fetched from the kl_iterator_metadata method).
  */
-extern size_t kl_iterator_message(KLIterator *iterator, KLMessage *message);
+extern UInt64 kl_iterator_message(KLIterator *iterator, KLMessage *message);
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }
