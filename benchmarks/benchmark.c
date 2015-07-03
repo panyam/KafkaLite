@@ -15,28 +15,61 @@ void setup(Benchmark *bm)
  */
 void test_single_thread(Benchmark *bm)
 {
-    KLIterator *iterator = kl_iterator_new(bm->context, "topic", 0);
+	// create all consumers here
+    KLIterator **iterators = malloc(sizeof(KLIterator *) * bm->numConsumers);
+	for (int i = 0;i < bm->numConsumers;i++)
+	{
+		iterators[i] = kl_iterator_new(bm->context, "topic", 0);
+	}
     KLMessage *message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
+	int startingConsumer = 0;
+	int endingConsumer = 0;
+	int numPublished = 0;
+	int *numConsumed = calloc(bm->numConsumers, sizeof(int));
+	int totalNumConsumed = 0;
+	while (numPublished < bm->numMessages || totalNumConsumed < (bm->numConsumers * bm->numMessages))
+	{
+		if (numPublished < bm->numMessages)
+		{
+			publishMessage(bm);
+			numPublished++;
+			// printf("  P (%05d)  ", numPublished);
+		} else {
+			// printf("  -          ");
+		}
 
-    // produce and consume
-    int i = 0;
-    for (;i < bm->leadAmount;i++)
-    {
-        publishMessage(bm);
-    }
+		// Is it time to start a consumer?
+		if (endingConsumer < bm->numConsumers && numPublished % bm->leadAmount == 0)
+		{
+			// start another consumer
+			if (numPublished % bm->leadAmount == 0)
+			{
+				endingConsumer++;
+			}
+		}
 
-    // produce and consume
-    for (;i < bm->numMessages;i++)
-    {
-        publishMessage(bm);
-        consumeMessage(bm, iterator, message);
-    }
+		// make all consumers consume!
+		// for (int c = 0;c < startingConsumer;c++) printf("  -          ");
 
-    // finish with the remaining consumers
-    for (i = 0;i < bm->leadAmount;i++)
-    {
-        consumeMessage(bm, iterator, message);
-    }
+		for (int c = startingConsumer;c < endingConsumer;c++)
+		{
+			if (numConsumed[c] < bm->numMessages)
+			{
+        		consumeMessage(bm, iterators[c], message);
+				// printf("  %d (%05d)  ", c, numConsumed[c]);
+				numConsumed[c]++;
+				totalNumConsumed++;
+			}
+			if (c == startingConsumer && numConsumed[c] >= bm->numMessages)
+			{
+				printf("Consumer Finished: %d\n", c);
+				startingConsumer++;
+			}
+		}
+
+		// for (int c = endingConsumer;c < bm->numConsumers;c++) printf("  -          ");
+		// puts("");
+	}
 }
 
 int main(int argc, char *argv[])
