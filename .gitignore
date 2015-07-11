@@ -45,3 +45,5 @@ stamp-h1
 benchmarks/Makefile
 src/Makefile
 tests/Makefile
+build-aux
+m4
