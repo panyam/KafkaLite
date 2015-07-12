@@ -33,10 +33,12 @@
 
 # autoconf related things
 bld/
+*.in
 autom4te.cache
 aclocal.m4
 config.log
 config.status
+configure
 *.log
 Makefile
 config.h
