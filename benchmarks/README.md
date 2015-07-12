@@ -8,8 +8,8 @@ The benchmarks being tested are:
 
 3. Single Producer and Single Consumer running in two different threads.
 
-4. Single Producer (1 thread) and Multiple Consumers (1 thread for all
-   Consumers)
+4. Single Producer and Multiple Consumers all in different threads
 
-5. Single Producer and Multiple Consumers all in different threads
+5. Single Producer (1 thread) and Multiple Consumers (1 thread for all
+   Consumers)
 

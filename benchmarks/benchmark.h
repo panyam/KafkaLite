@@ -6,6 +6,8 @@
 
 #define DELIM      ','
 
+#include <pthread.h>
+
 typedef struct Benchmark
 {
     char *contextDir;
@@ -13,6 +15,7 @@ typedef struct Benchmark
     int numMessages;
     int numProducers;
     int numConsumers;
+    int numThreads;
     int numTestMessages;
     char *testFileNames;
     KLArray *testMessages;
