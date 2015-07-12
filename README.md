@@ -2,7 +2,32 @@
 
 ## Installation
 
-Coming soon - packaging and brewing it up!
+### From an iOS project
+
+Add the KafkaLite pod to your Podfile:
+
+```
+pod 'KafkaLite'
+```
+
+or to get the latest development version:
+
+```
+pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
+```
+
+### From Sources
+
+* Download sources for a particular version from: https://github.com/panyam/KafkaLite/releases
+* configure and install:
+
+```
+tar -zxvf libkafkalite-<version>.tar.gz
+./configure
+make
+make install
+```
+
 
 ## Basic Usage
 
