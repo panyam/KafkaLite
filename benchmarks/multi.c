@@ -9,6 +9,7 @@ typedef struct ConsumerThreadInfo
     Benchmark *bm;
     pthread_t threadId;
     int threadIndex;
+    int numConsumersInThread;
     // Iterator for the consumer
     KLIterator **iterators;
     // Message fetched by the consumer
@@ -24,6 +25,60 @@ typedef struct PublisherThreadInfo
 } PublisherThreadInfo;
 
 /**
+ * Single threaded test with single publisher and one or more consumers
+ * with each actor starting after a certain number of messages.
+ */
+void test_multiple_threads(Benchmark *bm)
+{
+    // create all consumers here
+    PublisherThreadInfo pti;
+    memset(&pti, 0, sizeof(pti));
+    pti.bm = bm;
+    pti.consumerThreads = calloc(bm->numConsumers, sizeof(ConsumerThreadInfo));
+    for (int i = 0;i < bm->numThreads;i++)
+    {
+        // How many consumers is this thread handling
+        ConsumerThreadInfo *cti = pti.consumerThreads + i;
+        cti->bm = bm;
+        cti->numConsumersInThread = bm->numConsumers / bm->numThreads;
+        if (bm->numConsumers % bm->numThreads != 0)
+        {
+            if (i == bm->numThreads - 1)
+            {
+                // last thread is gonna server lesser number of consumers than
+                // the others
+                cti->numConsumersInThread = bm->numConsumers % bm->numThreads;
+            } else {
+                cti->numConsumersInThread ++;
+            }
+        }
+        cti->message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
+        cti->iterators = calloc(cti->numConsumersInThread, sizeof(KLIterator *));
+		printf("Creating %d consumers for thread %d\n", cti->numConsumersInThread, i);
+        for (int j = 0;j < cti->numConsumersInThread;j++)
+        {
+            cti->iterators[j] = kl_iterator_new(bm->context, "topic", 0);
+        }
+    }
+    
+    // now start the publisher and let it create the consumers depending on lead
+    // amount and number of threads
+    int result = pthread_create(&pti.threadId, NULL, publisher_thread, &pti);
+	printf("Publisher thread created.  Result: %d, ID: %lu\n", result, pti.threadId);
+
+    // wait for all threads to finish
+    void *retval = NULL;
+    puts("Waiting for publisher...");
+    pthread_join(pti.threadId, &retval);
+    puts("Waiting for consumers...");
+    for (int i = 0;i < bm->numThreads;i++)
+    {
+        printf("Waiting for consumer thread %d...\n", i);
+        pthread_join(pti.consumerThreads[i].threadId, &retval);
+    }
+}
+
+/**
  * The publisher thread essentially publishes messages on its own thread
  * and spawns upto numThreads consumer threads, where each consumer 
  * thread runs (numConsumers / numThreads) consumers in a multiplexed 
@@ -33,6 +88,7 @@ void *publisher_thread(void *data)
 {
     PublisherThreadInfo *pti = (PublisherThreadInfo *)data;
     Benchmark *bm = pti->bm;
+    printf("Publisher thread started. ID: %ld\n", pti->threadId);
     for (int i = 0;i < bm->numMessages;i++)
     {
         publishMessage(bm);
@@ -40,106 +96,55 @@ void *publisher_thread(void *data)
         {
             if (pti->numConsumersCreated < bm->numThreads)
             {
-                pti->consumerThreads[i].threadIndex = pti->numConsumersCreated++;
-                pthread_create(&pti->consumerThreads[i].threadId, NULL, consumer_thread, pti->consumerThreads + i);
+                ConsumerThreadInfo *cti = pti->consumerThreads + pti->numConsumersCreated;
+                cti->bm = bm;
+                cti->threadIndex = pti->numConsumersCreated++;
+                int result = pthread_create(&cti->threadId, NULL, consumer_thread, cti);
+				printf("Consumer thread %d [%p] created.  Result: %d, ID: %lu\n", cti->threadIndex, cti, result, cti->threadId);
             }
         }
     }
+    puts("Publisher thread finished.");
     return NULL;
 }
 
 void *consumer_thread(void *data)
 {
     ConsumerThreadInfo *cti = (ConsumerThreadInfo *)data;
+    printf("Consumer thread %d [%p] started. ID: %lu\n", cti->threadIndex, cti, cti->threadId);
+
     Benchmark *bm = cti->bm;
-    KLIterator **iterators = cti->iterators;
-	KLMessage *message = cti->message;
+    int *numConsumed = calloc(bm->numConsumers, sizeof(int));
+
+    int numConsumers = cti->numConsumersInThread;
     int startingConsumer = 0;
     int endingConsumer = 0;
-    int numPublished = 0;
-    int *numConsumed = calloc(bm->numConsumers, sizeof(int));
     int totalNumConsumed = 0;
-    while (numPublished < bm->numMessages || totalNumConsumed < (bm->numConsumers * bm->numMessages))
+    while (totalNumConsumed < (numConsumers * bm->numMessages))
     {
-        if (numPublished < bm->numMessages)
-        {
-            numPublished++;
-            // printf("  P (%05d)  ", numPublished);
-        } else {
-            // printf("  -          ");
-        }
-
         // Is it time to start a consumer?
-        if (endingConsumer < bm->numConsumers && numPublished % bm->leadAmount == 0)
+        if (endingConsumer < numConsumers && (bm->leadAmount == 0 || totalNumConsumed % bm->leadAmount == 0))
         {
             // start another consumer
-            if (numPublished % bm->leadAmount == 0)
-            {
-                endingConsumer++;
-            }
+            printf("Thread %d, Starting new consumer.\n", cti->threadIndex);
+            endingConsumer++;
         }
-
-        // make all consumers consume!
-        // for (int c = 0;c < startingConsumer;c++) printf("  -          ");
 
         for (int c = startingConsumer;c < endingConsumer;c++)
         {
             if (numConsumed[c] < bm->numMessages)
             {
-                consumeMessage(bm, iterators[c], message);
-                // printf("  %d (%05d)  ", c, numConsumed[c]);
+                consumeMessage(bm, cti->iterators[c], cti->message);
                 numConsumed[c]++;
                 totalNumConsumed++;
             }
             if (c == startingConsumer && numConsumed[c] >= bm->numMessages)
             {
-                printf("Consumer Finished: %d\n", c);
+                printf("Thread %d, Consumer Finished: %d\n", cti->threadIndex, c);
                 startingConsumer++;
             }
         }
-
-        // for (int c = endingConsumer;c < bm->numConsumers;c++) printf("  -          ");
-        // puts("");
     }
+    printf("Consumer thread %d finished.\n", cti->threadIndex);
     return NULL;
-}
-
-/**
- * Single threaded test with single publisher and one or more consumers
- * with each actor starting after a certain number of messages.
- */
-void test_multiple_threads(Benchmark *bm)
-{
-    // create all consumers here
-    PublisherThreadInfo pti;
-	memset(&pti, 0, sizeof(pti));
-    pti.bm = bm;
-    pti.consumerThreads = calloc(bm->numConsumers, sizeof(ConsumerThreadInfo));
-    for (int i = 0;i < bm->numThreads;i++)
-    {
-        // How many consumers is this thread handling
-        int numConsumers = bm->numConsumers / bm->numThreads;
-        if (bm->numConsumers % bm->numThreads != 0)
-            numConsumers++;
-        pti.consumerThreads[i].message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
-        pti.consumerThreads[i].iterators = calloc(numConsumers, sizeof(KLIterator *));
-		for (int j = 0;j < numConsumers;j++)
-		{
-        	pti.consumerThreads[i].iterators[j] = kl_iterator_new(bm->context, "topic", 0);
-		}
-    }
-    
-    // now start the publisher and let it create the consumers depending on lead
-    // amount and number of threads
-    pthread_create(&pti.threadId, NULL, publisher_thread, &pti);
-
-	// wait for all threads to finish
-	void *retval = NULL;
-	puts("Waiting for publisher...");
-	pthread_join(pti.threadId, &retval);
-    for (int i = 0;i < bm->numThreads;i++)
-	{
-		printf("Waiting for consumer thread %d...\n", i);
-		pthread_join(pti.consumerThreads[i].threadId, &retval);
-	}
 }

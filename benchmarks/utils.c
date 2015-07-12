@@ -91,6 +91,12 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
             usage();
         }
     }
+
+	if (bm->numThreads >= bm->numConsumers)
+	{
+		bm->numConsumers = bm->numThreads;
+	}
+
     if (bm->testFileNames == NULL)
     {
         bm->testFileNames = strdup("messages/0.txt,messages/1.txt,messages/2.txt,messages/3.txt,messages/4.txt,"

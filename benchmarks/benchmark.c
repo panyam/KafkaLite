@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     setup(benchmark);
 
     long long beforeTime = kl_current_timestamp();
-	if (benchmark->numThreads <= 1)
+	if (benchmark->numThreads < 1)
 	{
     	test_single_thread(benchmark);
 	} else {
