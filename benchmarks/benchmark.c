@@ -5,7 +5,7 @@ void setup(Benchmark *bm)
 {
     loadTestFiles(bm);
     kl_rmdirs(bm->contextDir);
-    bm->context = kl_context_open(bm->contextDir, NULL);
+    bm->context = kl_context_open(bm->contextDir, bm->numThreads == 0 ? NULL : kl_pthread_mutex_manager());
     bm->topic = kl_topic_open(bm->context, "topic");
 }
 

@@ -122,7 +122,7 @@ void *consumer_thread(void *data)
     int totalNumConsumed = 0;
 
     int currConsumer = startingConsumer;
-    while (true)
+    while (totalNumConsumed < numConsumers * bm->numMessages)
     {
         // Is it time to start a consumer?
         if (endingConsumer < numConsumers && (bm->leadAmount == 0 || totalNumConsumed % bm->leadAmount == 0))
