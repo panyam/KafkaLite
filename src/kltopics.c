@@ -305,7 +305,7 @@ size_t kl_topic_message_count(KLTopic *topic)
  * The output buffer "out" must point to a buffer that has enough space for
  * outCount KLMessageMetadata objects.
  */
-size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount)
+size_t kl_topic_get_message_metadata(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);

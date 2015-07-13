@@ -50,14 +50,14 @@ extern size_t kl_topic_publish_multi(KLTopic *topic, size_t numMessages, const c
  * The output buffer "out" must point to a buffer that has enough space for
  * outCount KLMessageMetadata objects.
  */
-extern size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount);
+extern size_t kl_topic_get_message_metadata(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount);
 
 /**
  * Get a list of messages beginning at a particular index.
  * Issues to consider:
- * If an index is specified then get_message_info nees to be called again to 
+ * If an index is specified then get_message_metadata nees to be called again to 
  * get the offset and size. However, this is a duplicate call as most likely 
- * the offset and size were fetched by a previous call to get_message_info.  
+ * the offset and size were fetched by a previous call to get_message_metadata.  
  * To prevent this an offset could be pass the offset but there is no 
  * way to validate this.  
  * Instead the message info (which is an opaque pointer) is passed which will

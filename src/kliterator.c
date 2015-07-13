@@ -81,7 +81,7 @@ bool kl_iterator_forward(KLIterator *iterator)
 
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
+	kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
 
 	iterator->currIndex ++;
 	return true;
@@ -100,7 +100,7 @@ bool kl_iterator_rewind(KLIterator *iterator)
 
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
+	kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
 	return true;
 }
 
