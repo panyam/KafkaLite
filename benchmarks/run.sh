@@ -5,6 +5,7 @@ gcc -Wall -std=c99 -g -c ../src/*.c
 ar -cvq libkafkalite.a *.o
 cd -
 gcc -g -I ../src/ -Wall -std=c99 *.c ../bld/*.o -o ../bld/benchmark -lpthread
-../bld/benchmark -t ./messages/0.txt -l 1000 -c 5 -nt 1
-# strace -o trace -ff -ttT ../bld/benchmark -t ./messages/0.txt -l 1000000
+ARGS="-t ./messages/0.txt -l 1000 -c 10 -nt 2"
+../bld/benchmark $ARGS
+# strace -o trace -ff -ttT ../bld/benchmark $ARGS
 

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-extern KLLockManager *kl_pthread_mutex_manager();
+extern KLLockManager *kl_pthread_lock_manager();
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }

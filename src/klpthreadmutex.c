@@ -72,7 +72,7 @@ void kl_pthread_rwlock_rdunlock(void *data)
 	pthread_rwlock_unlock((pthread_rwlock_t *)data);
 }
 
-KLLockManager *kl_pthread_mutex_manager()
+KLLockManager *kl_pthread_lock_manager()
 {
 	KLLockManager *manager = calloc(1, sizeof(KLLockManager));
 	manager->MutexNew = kl_pthread_mutex_new;

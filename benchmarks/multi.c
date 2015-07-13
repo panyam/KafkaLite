@@ -139,6 +139,7 @@ void *consumer_thread(void *data)
             totalNumConsumed++;
         }
 
+
         if (currConsumer == startingConsumer && numConsumed[currConsumer] >= bm->numMessages)
         {
             printf("Thread %d, Consumer Finished: %d, MsgIndex: %d\n", cti->threadIndex, currConsumer, totalNumConsumed);
