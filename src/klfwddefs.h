@@ -50,8 +50,8 @@ typedef KLBuffer * KLBufferRef;
 typedef struct KLTopic KLTopic;
 typedef KLTopic * KLTopicRef;
 
-typedef struct KLMessageHeader KLMessageHeader;
-typedef KLMessageHeader * KLMessageHeaderRef;
+typedef struct KLMessageMetadata KLMessageMetadata;
+typedef KLMessageMetadata * KLMessageMetadataRef;
 
 typedef struct KLMessage KLMessage;
 typedef KLMessage * KLMessageRef;

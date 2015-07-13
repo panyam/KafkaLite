@@ -12,7 +12,7 @@ extern "C" {
 /**
  * Info/Metadata about a message.
  */
-struct KLMessageHeader
+struct KLMessageMetadata
 {
 	int64_t offset;
 	uint64_t size;

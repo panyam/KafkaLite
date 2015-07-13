@@ -69,7 +69,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
 
     // go to where we can start writing to index file 
     // - only need to do this once per open
-    lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
+    lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageMetadata), SEEK_SET);
 
     // now go to the point where we can start writing data
     // - only need to do this once per open
@@ -185,7 +185,7 @@ size_t kl_topic_publish_multi(KLTopic *topic, size_t numMessages, const char *ms
 
 size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
 {
-    KLMessageHeader info;
+    KLMessageMetadata info;
     info.offset = topic->currOffset;
     info.size = msgsize;
 
@@ -221,7 +221,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
             pwrite(topic->dataFile, msg, msgsize, off);
 
             // now write the message info before updating the header
-            pwrite(topic->indexFile, (const char *)(&info), sizeof(info), topic->currIndex * sizeof(KLMessageHeader));
+            pwrite(topic->indexFile, (const char *)(&info), sizeof(info), topic->currIndex * sizeof(KLMessageMetadata));
         } else {
             // write the message
             lseek(topic->dataFile, topic->currOffset, SEEK_SET);
@@ -229,7 +229,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
             write(topic->dataFile, msg, msgsize);
 
             // now write the message info before updating the header
-            lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageHeader), SEEK_SET);
+            lseek(topic->indexFile, topic->currIndex * sizeof(KLMessageMetadata), SEEK_SET);
             write(topic->indexFile, (const char *)(&info), sizeof(info));
         }
 
@@ -265,7 +265,7 @@ void kl_topic_flush(KLTopic *topic)
             kl_buffer_reset(topic->dataBuffer);
 
             size_t indexLength = kl_buffer_size(topic->indexBuffer);
-            lseek(topic->indexFile, topic->flushedAtIndex * sizeof(KLMessageHeader), SEEK_SET);
+            lseek(topic->indexFile, topic->flushedAtIndex * sizeof(KLMessageMetadata), SEEK_SET);
             write(topic->indexFile, kl_buffer_bytes(topic->indexBuffer), indexLength);
             kl_buffer_reset(topic->indexBuffer);
 
@@ -303,9 +303,9 @@ size_t kl_topic_message_count(KLTopic *topic)
 /**
  * Get the info about count number of messages starting from a particular message index.
  * The output buffer "out" must point to a buffer that has enough space for
- * outCount KLMessageHeader objects.
+ * outCount KLMessageMetadata objects.
  */
-size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *out, size_t outCount)
+size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
@@ -326,9 +326,9 @@ size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *o
         // index1 to index2 is on disk so read from disk
         outCount = (size_t)(index2 - index1);
         kl_read_file(topic, topic->indexFile,
-                     out, outCount * sizeof(KLMessageHeader),
-                     index1 * sizeof(KLMessageHeader));
-        out += outCount * sizeof(KLMessageHeader);
+                     out, outCount * sizeof(KLMessageMetadata),
+                     index1 * sizeof(KLMessageMetadata));
+        out += outCount * sizeof(KLMessageMetadata);
         totalOutCount += outCount;
     } else {
         index2 = index1;
@@ -340,8 +340,8 @@ size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *o
     {
         outCount = (size_t)(index3 - index2);
         kl_buffer_copy(topic->indexBuffer,
-                        (index2 - topic->flushedAtIndex) * sizeof(KLMessageHeader),
-                        (char *)out, outCount * sizeof(KLMessageHeader));
+                        (index2 - topic->flushedAtIndex) * sizeof(KLMessageMetadata),
+                        (char *)out, outCount * sizeof(KLMessageMetadata));
         totalOutCount += outCount;
     }
 
@@ -350,7 +350,7 @@ size_t kl_topic_get_message_info(KLTopic *topic, off_t index, KLMessageHeader *o
     return totalOutCount;
 }
 
-size_t kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, size_t numMessages, KLMessage *outMessages)
+size_t kl_topic_get_messages(KLTopic *topic, KLMessageMetadata *const headers, size_t numMessages, KLMessage *outMessages)
 {
     KLContextRef context = topic->context;
     KL_MUTEX_LOCK(context->lockManager, topic->filePosLock);
@@ -360,7 +360,7 @@ size_t kl_topic_get_messages(KLTopic *topic, KLMessageHeader *const headers, siz
     for (off_t i = 0;i < numMessages;i++)
         totalReadSize += headers[i].size;
 
-    KLMessageHeader *const firstMsgHeader = headers;
+    KLMessageMetadata *const firstMsgHeader = headers;
     off_t endOffset = firstMsgHeader->offset + totalReadSize;
     if (endOffset > topic->currOffset)
             endOffset = topic->currOffset;

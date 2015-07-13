@@ -24,6 +24,7 @@ KLIterator *kl_iterator_new(KLContext *context, const char *topic, int offset)
 {
 	KLIterator *iterator = calloc(1, sizeof(KLIterator));
 	iterator->topic = kl_topic_open(context, topic);
+	// &iterator->currMessageMetadata = iterator->messageMetadatas;
 	return iterator;
 }
 
@@ -52,7 +53,7 @@ size_t kl_iterator_index(KLIterator *iterator)
  */
 size_t kl_iterator_offset(KLIterator *iterator)
 {
-	return iterator ? (size_t)iterator->currMessageHeader.offset : 0;
+	return iterator ? (size_t)iterator->currMessageMetadata.offset : 0;
 }
 
 /**
@@ -60,7 +61,7 @@ size_t kl_iterator_offset(KLIterator *iterator)
  */
 size_t kl_iterator_msgsize(KLIterator *iterator)
 {
-	return iterator ? iterator->currMessageHeader.size : 0;
+	return iterator ? iterator->currMessageMetadata.size : 0;
 }
 
 /**
@@ -76,9 +77,11 @@ bool kl_iterator_forward(KLIterator *iterator)
 		return false;
 	}
 
+	// see how many we need to fetch
+
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageHeader, 1);
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
 
 	iterator->currIndex ++;
 	return true;
@@ -97,16 +100,16 @@ bool kl_iterator_rewind(KLIterator *iterator)
 
 	// TODO: consider using a circular buffer to keep keep more 
 	// than one message info in memory.
-	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageHeader, 1);
+	kl_topic_get_message_info(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
 	return true;
 }
 
 /**
  * Gets the metadata of the current message pointed by the iterator.
  */
-KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator)
+KLMessageMetadata *const kl_iterator_metadata(KLIterator *iterator)
 {
-	return &iterator->currMessageHeader;
+	return &iterator->currMessageMetadata;
 }
 
 /**
@@ -116,6 +119,6 @@ KLMessageHeader *const kl_iterator_metadata(KLIterator *iterator)
  */
 size_t kl_iterator_message(KLIterator *iterator, KLMessage *message)
 {
-	return kl_topic_get_messages(iterator->topic, &iterator->currMessageHeader, 1, message);
+	return kl_topic_get_messages(iterator->topic, &iterator->currMessageMetadata, 1, message);
 }
 

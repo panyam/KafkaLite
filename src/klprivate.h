@@ -110,9 +110,19 @@ struct KLIterator
     off_t currIndex;
 
     /**
-     * A buffer holding info about 
+     * A buffer holding a bunch of message headers in one go
      */
-    KLMessageHeader currMessageHeader;
+    //KLMessageMetadata messageMetadatas[256];
+
+	/**
+	 * Number of message headers that were read.
+	 */
+	//int numMessageMetadatas;
+
+	/**
+	 * Current message header we are upto.
+	 */
+	KLMessageMetadata currMessageMetadata;
 };
 
 

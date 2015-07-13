@@ -38,12 +38,12 @@ void KLIteratorTests::test_kl_iterator_consume()
 		CPPUNIT_ASSERT(result);
 
 		// get the message size
-		UInt64 msgsize = kl_iterator_msgsize(iterator);
+		uint64_t msgsize = kl_iterator_msgsize(iterator);
 		KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize + 1);
 		kl_iterator_message(iterator, message);
 		message->data[msgsize] = 0;
 		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);
-		KLMessageHeader *const messageInfo = kl_iterator_metadata(iterator);
+		KLMessageMetadata *const messageInfo = kl_iterator_metadata(iterator);
 		if (strlen(buffer) != msgsize || message->size != msgsize || strncmp(buffer, message->data, msgsize) != 0)
 		{
 			kl_log("\nFailed at I: %d, Offset: %ld, Size: %lu", i, messageInfo->offset, messageInfo->size);
