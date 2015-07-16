@@ -33,7 +33,7 @@ void loadTestFiles(Benchmark *bm)
 
 				KLMessage **nextMsgSize = kl_array_insert_at(bm->testMessages, -1);
 				nextMsgSize[0] = (KLMessage *)malloc(sizeof(KLMessage) + fileStat.st_size);
-				nextMsgSize[0]->size = fileStat.st_size;
+				nextMsgSize[0]->header.size = fileStat.st_size;
                 read(fd, nextMsgSize[0]->data, fileStat.st_size);
                 close(fd);
             }
@@ -107,7 +107,7 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
 void publishMessage(Benchmark *bm)
 {
     KLMessage **message = kl_array_random(bm->testMessages);
-    kl_topic_publish(bm->topic, message[0]->data, message[0]->size);
+    kl_topic_publish(bm->topic, message[0]->data, message[0]->header.size);
 }
 
 void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message)

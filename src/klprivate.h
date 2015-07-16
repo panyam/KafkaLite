@@ -98,7 +98,7 @@ struct KLTopic
 };
 
 
-#define NUM_MESSAGE_METADATAS	8192
+#define NUM_MESSAGE_METADATAS	256
 
 /**
  * Topic iterators.
