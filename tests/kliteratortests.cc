@@ -14,6 +14,12 @@ void KLIteratorTests::setUp()
 	publishMessages(topic, NUM_MESSAGES, NUM_RAND_MAX, false);
 }
 
+void KLIteratorTests::tearDown(void)
+{
+	kl_topic_close(topic); topic = NULL;
+	kl_context_close(context); context = NULL;
+}
+
 /**
  * Create an iterator.
  */

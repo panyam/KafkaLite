@@ -98,10 +98,20 @@ void KLTopicTests::test_kl_topic_get_message_metadata()
     CPPUNIT_ASSERT(topic->currOffset == 7 * (sizeof(KLMessageHeader) + msgsize));
     CPPUNIT_ASSERT(topic->currIndex == 7);
     CPPUNIT_ASSERT(kl_buffer_size(topic->dataBuffer) == 3 * (sizeof(KLMessageHeader) + msgsize));
-    kl_topic_close(topic);
 
     // Now start reading
     // read 1 - everything is on disk
+	KLMessageMetadata metadatas[16];
+	size_t nRead = kl_topic_get_message_metadata(topic, 1, metadatas, 3);
+	CPPUNIT_ASSERT(nRead == 3);
+
+	nRead = kl_topic_get_message_metadata(topic, 5, metadatas, 2);
+	CPPUNIT_ASSERT(nRead == 2);
+
+	nRead = kl_topic_get_message_metadata(topic, 0, metadatas, 10);
+	CPPUNIT_ASSERT(nRead == 7);
+
+    kl_topic_close(topic);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( KLTopicTests );

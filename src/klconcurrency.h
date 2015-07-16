@@ -8,11 +8,11 @@
 extern "C" {
 #endif
 
-#define KL_MUTEX_LOCK(factory, mutex)		do { if (factory) factory->MutexLock(mutex, false); } while(0)
-#define KL_MUTEX_TRYLOCK(factory, mutex)	do { if (factory) factory->MutexLock(mutex, true); } while(0)
-#define KL_MUTEX_UNLOCK(factory, mutex)		do { if (factory) factory->MutexUnlock(mutex); } while(0)
+#define KL_MUTEX_LOCK(factory, mutex)		if (factory) factory->MutexLock(mutex, false)
+#define KL_MUTEX_TRYLOCK(factory, mutex)	if (factory) factory->MutexLock(mutex, true)
+#define KL_MUTEX_UNLOCK(factory, mutex)		if (factory) factory->MutexUnlock(mutex)
 #define KL_MUTEX_NEW(factory, data)			((factory) ? (factory)->MutexNew(data) : NULL)
-#define KL_MUTEX_DESTROY(factory, mutex)	do { if (factory) factory->MutexDestroy(mutex); } while(0)
+#define KL_MUTEX_DESTROY(factory, mutex)	if (factory) factory->MutexDestroy(mutex)
 
 #define KL_RWLOCK_RDLOCK(factory, mutex)	do { if (factory) factory->RWLockReadLock(mutex, false); } while(0)
 #define KL_RWLOCK_TRYRDLOCK(factory, mutex)	do { if (factory) factory->RWLockReadLock(mutex, true); } while(0)

@@ -16,7 +16,7 @@ public:
 
 public:
 	virtual void setUp(void);
-	virtual void tearDown(void) { kl_context_close(context); }
+	virtual void tearDown(void);
 
 	void test_kl_iterator_new();
 	void test_kl_iterator_consume();
