@@ -199,7 +199,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
         // first!
 
         // write to the buffer first
-		uint64_t msgsize64 = msgsize;
+        uint64_t msgsize64 = msgsize;
         kl_buffer_append(topic->dataBuffer, (const char *)(&msgsize64), sizeof(msgsize64));
         kl_buffer_append(topic->dataBuffer, msg, msgsize);
 
@@ -215,7 +215,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
         {
             // write the message
             off_t off = topic->currOffset;
-			uint64_t msgsize64 = msgsize;
+            uint64_t msgsize64 = msgsize;
             pwrite(topic->dataFile, (const char *)(&msgsize64), sizeof(msgsize64), off);
             off += sizeof(msgsize);
             pwrite(topic->dataFile, msg, msgsize, off);
@@ -245,7 +245,7 @@ size_t kl_topic_publish_single(KLTopic *topic, const char *msg, size_t msgsize)
     }
 
     // if we have not flushed in while then do it
-    if (unflushedLength > topic->flushThreshold)
+    if (unflushedLength >= topic->flushThreshold)
         kl_topic_flush(topic);
     return topic->currOffset;
 }
@@ -304,6 +304,8 @@ size_t kl_topic_message_count(KLTopic *topic)
  * Get the info about count number of messages starting from a particular message index.
  * The output buffer "out" must point to a buffer that has enough space for
  * outCount KLMessageMetadata objects.
+ *
+ * Returns the number of message metadata objects fetched/available.
  */
 size_t kl_topic_get_message_metadata(KLTopic *topic, off_t index, KLMessageMetadata *out, size_t outCount)
 {

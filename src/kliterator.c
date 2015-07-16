@@ -22,10 +22,11 @@
  */
 KLIterator *kl_iterator_new(KLContext *context, const char *topic, int offset)
 {
-	KLIterator *iterator = calloc(1, sizeof(KLIterator));
-	iterator->topic = kl_topic_open(context, topic);
-	// &iterator->currMessageMetadata = iterator->messageMetadatas;
-	return iterator;
+    KLIterator *iterator = calloc(1, sizeof(KLIterator));
+    iterator->topic = kl_topic_open(context, topic);
+    iterator->currMessageMetadata = iterator->messageMetadatas;
+    iterator->lastMessageMetadata = iterator->messageMetadatas;
+    return iterator;
 }
 
 /**
@@ -33,11 +34,11 @@ KLIterator *kl_iterator_new(KLContext *context, const char *topic, int offset)
  */
 void kl_iterator_destroy(KLIterator *iterator)
 {
-	if (iterator)
-	{
-		kl_topic_close(iterator->topic);
-		free(iterator);
-	}
+    if (iterator)
+    {
+        kl_topic_close(iterator->topic);
+        free(iterator);
+    }
 }
 
 /**
@@ -45,7 +46,7 @@ void kl_iterator_destroy(KLIterator *iterator)
  */
 size_t kl_iterator_index(KLIterator *iterator)
 {
-	return iterator ? (size_t)iterator->currIndex : 0;
+    return iterator ? (size_t)iterator->currIndex : 0;
 }
 
 /**
@@ -53,7 +54,7 @@ size_t kl_iterator_index(KLIterator *iterator)
  */
 size_t kl_iterator_offset(KLIterator *iterator)
 {
-	return iterator ? (size_t)iterator->currMessageMetadata.offset : 0;
+    return iterator ? (size_t)iterator->currMessageMetadata->offset : 0;
 }
 
 /**
@@ -61,7 +62,7 @@ size_t kl_iterator_offset(KLIterator *iterator)
  */
 size_t kl_iterator_msgsize(KLIterator *iterator)
 {
-	return iterator ? iterator->currMessageMetadata.size : 0;
+    return iterator ? iterator->currMessageMetadata->size : 0;
 }
 
 /**
@@ -69,22 +70,30 @@ size_t kl_iterator_msgsize(KLIterator *iterator)
  */
 bool kl_iterator_forward(KLIterator *iterator)
 {
-	if (!iterator)
-		return false;
+    if (!iterator)
+        return false;
 
-	if (iterator->currIndex >= iterator->topic->currIndex)
-	{
-		return false;
-	}
+    if (iterator->currIndex >= iterator->topic->currIndex)
+    {
+        return false;
+    }
 
-	// see how many we need to fetch
+    // see how many we need to fetch
+    if (iterator->currMessageMetadata >= iterator->lastMessageMetadata)
+    {
+        // reload
+        size_t nRead = kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, iterator->messageMetadatas, NUM_MESSAGE_METADATAS);
+        if (nRead == 0)
+            return false;
+		printf("Thread: %p, Index: %d, Num Read: %d\n", pthread_self(), iterator->currIndex, nRead);
+        iterator->currMessageMetadata = iterator->messageMetadatas;
+        iterator->lastMessageMetadata = iterator->currMessageMetadata + nRead;
+    } else {
+        iterator->currMessageMetadata++;
+    }
 
-	// TODO: consider using a circular buffer to keep keep more 
-	// than one message info in memory.
-	kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
-
-	iterator->currIndex ++;
-	return true;
+    iterator->currIndex ++;
+    return true;
 }
 
 /**
@@ -93,15 +102,24 @@ bool kl_iterator_forward(KLIterator *iterator)
  */
 bool kl_iterator_rewind(KLIterator *iterator)
 {
-	if (iterator->currIndex <= 0)
-		return false;
+    if (iterator->currIndex <= 0)
+        return false;
 
-	iterator->currIndex--;
+    if (iterator->currMessageMetadata < iterator->messageMetadatas)
+    {
+        // reload
+        off_t newIndex = iterator->currIndex > NUM_MESSAGE_METADATAS ? iterator->currIndex - NUM_MESSAGE_METADATAS : 0;
+        size_t nRead = kl_topic_get_message_metadata(iterator->topic, newIndex, iterator->messageMetadatas, NUM_MESSAGE_METADATAS);
+        if (nRead == 0)
+            return false;
+        iterator->lastMessageMetadata = iterator->messageMetadatas + nRead;
+        iterator->currMessageMetadata = iterator->lastMessageMetadata - 1;
+    } else {
+        iterator->currMessageMetadata--;
+    }
 
-	// TODO: consider using a circular buffer to keep keep more 
-	// than one message info in memory.
-	kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, &iterator->currMessageMetadata, 1);
-	return true;
+    iterator->currIndex--;
+    return true;
 }
 
 /**
@@ -109,7 +127,7 @@ bool kl_iterator_rewind(KLIterator *iterator)
  */
 KLMessageMetadata *const kl_iterator_metadata(KLIterator *iterator)
 {
-	return &iterator->currMessageMetadata;
+    return iterator->currMessageMetadata;
 }
 
 /**
@@ -119,6 +137,6 @@ KLMessageMetadata *const kl_iterator_metadata(KLIterator *iterator)
  */
 size_t kl_iterator_message(KLIterator *iterator, KLMessage *message)
 {
-	return kl_topic_get_messages(iterator->topic, &iterator->currMessageMetadata, 1, message);
+    return kl_topic_get_messages(iterator->topic, iterator->currMessageMetadata, 1, message);
 }
 

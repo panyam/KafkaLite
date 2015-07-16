@@ -97,6 +97,9 @@ struct KLTopic
 	bool usePwrite;
 };
 
+
+#define NUM_MESSAGE_METADATAS	8192
+
 /**
  * Topic iterators.
  */
@@ -112,17 +115,17 @@ struct KLIterator
     /**
      * A buffer holding a bunch of message headers in one go
      */
-    //KLMessageMetadata messageMetadatas[256];
-
-	/**
-	 * Number of message headers that were read.
-	 */
-	//int numMessageMetadatas;
+    KLMessageMetadata messageMetadatas[NUM_MESSAGE_METADATAS];
 
 	/**
 	 * Current message header we are upto.
 	 */
-	KLMessageMetadata currMessageMetadata;
+	KLMessageMetadata *currMessageMetadata;
+
+	/**
+	 * Pointer to the last message metadata
+	 */
+	KLMessageMetadata *lastMessageMetadata;
 };
 
 

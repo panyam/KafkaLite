@@ -21,6 +21,7 @@ void KLIteratorTests::test_kl_iterator_new()
 {
 	KLIterator *iterator = kl_iterator_new(context, "topic", 0);
 	CPPUNIT_ASSERT(iterator != NULL);
+	kl_iterator_destroy(iterator);
 }
 
 /**
@@ -44,17 +45,18 @@ void KLIteratorTests::test_kl_iterator_consume()
 		message->data[msgsize] = 0;
 		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);
 		KLMessageMetadata *const messageInfo = kl_iterator_metadata(iterator);
-		if (strlen(buffer) != msgsize || message->size != msgsize || strncmp(buffer, message->data, msgsize) != 0)
+		if (strlen(buffer) != msgsize || message->header.size != msgsize || strncmp(buffer, message->data, msgsize) != 0)
 		{
 			kl_log("\nFailed at I: %d, Offset: %ld, Size: %lu", i, messageInfo->offset, messageInfo->size);
 			kl_log("\nBuffer:  |%s|", buffer);
 			kl_log("\nMessage: |%s|", message->data);
 		}
 		CPPUNIT_ASSERT(strlen(buffer) == msgsize);
-		CPPUNIT_ASSERT(message->size == msgsize);
+		CPPUNIT_ASSERT(message->header.size == msgsize);
 		CPPUNIT_ASSERT(strncmp(buffer, message->data, msgsize) == 0);
 		free(message);
 	}
+	kl_iterator_destroy(iterator);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( KLIteratorTests );

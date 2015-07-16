@@ -19,11 +19,19 @@ struct KLMessageMetadata
 };
 
 /**
+ * Message header that is prepended to a message.
+ */
+struct KLMessageHeader
+{
+	uint64_t size;
+};
+
+/**
  * Stores the message size and data.
  */
 struct KLMessage
 {
-	uint64_t size;
+	KLMessageHeader header;
 	char data[];
 };
 

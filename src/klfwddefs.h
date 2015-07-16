@@ -56,6 +56,9 @@ typedef KLMessageMetadata * KLMessageMetadataRef;
 typedef struct KLMessage KLMessage;
 typedef KLMessage * KLMessageRef;
 
+typedef struct KLMessageHeader KLMessageHeader;
+typedef KLMessageHeader * KLMessageHeaderRef;
+
 typedef struct KLMutex KLMutex;
 typedef KLMutex * KLMutexRef;
 
