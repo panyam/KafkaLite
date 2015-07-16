@@ -337,7 +337,7 @@ size_t kl_topic_get_message_metadata(KLTopic *topic, off_t index, KLMessageMetad
 
     // index2 to index3 is on the cache
     off_t index3 = endIndex;
-    if (index2 > topic->flushedAtIndex && index2 < index3)
+    if (index2 < index3)
     {
         outCount = (size_t)(index3 - index2);
         kl_buffer_copy(topic->indexBuffer,
