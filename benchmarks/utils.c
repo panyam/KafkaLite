@@ -6,14 +6,14 @@ void loadTestFiles(Benchmark *bm)
     bm->maxMessageSize = 0;
     bm->testMessages = kl_array_new(sizeof(KLMessage *), 20);
 
-	const char *start = bm->testFileNames;
-	const char *realend = start + strlen(start);
-	while (start < realend)
-	{
-		const char *end = start;
-		while (*end && *end != ',') end++;
-		char *token = strndup(start, end - start);
-		start = end + 1;
+    const char *start = bm->testFileNames;
+    const char *realend = start + strlen(start);
+    while (start < realend)
+    {
+        const char *end = start;
+        while (*end && *end != ',') end++;
+        char *token = strndup(start, end - start);
+        start = end + 1;
 
         printf("Loading Test File: %s\n", token);
         struct stat fileStat;
@@ -31,17 +31,17 @@ void loadTestFiles(Benchmark *bm)
                 if (fileStat.st_size > bm->maxMessageSize)
                     bm->maxMessageSize = fileStat.st_size;
 
-				KLMessage **nextMsgSize = kl_array_insert_at(bm->testMessages, -1);
-				nextMsgSize[0] = (KLMessage *)malloc(sizeof(KLMessage) + fileStat.st_size);
-				nextMsgSize[0]->header.size = fileStat.st_size;
+                KLMessage **nextMsgSize = kl_array_insert_at(bm->testMessages, -1);
+                nextMsgSize[0] = (KLMessage *)malloc(sizeof(KLMessage) + fileStat.st_size);
+                nextMsgSize[0]->header.size = fileStat.st_size;
                 read(fd, nextMsgSize[0]->data, fileStat.st_size);
                 close(fd);
             }
         }
 
 
-		free(token);
-	}
+        free(token);
+    }
 }
 
 void usage()
@@ -62,10 +62,10 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
     bm->contextDir = strdup("/tmp/kafka");
     bm->leadAmount = 20;
     bm->numMessages = 1000000;
-    bm->numProducers = 1;
+    bm->numPublishers = 1;
     bm->numConsumers = 1;
     bm->testMessages = NULL;
-	bm->numThreads = 0;
+    bm->numThreads = 0;
 
     for (int i = 1;i < argc;i++)
     {
@@ -83,7 +83,7 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
             bm->leadAmount = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-p") == 0)
         {
-            bm->numProducers = atoi(argv[++i]);
+            bm->numPublishers = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-t") == 0)
         {
             bm->testFileNames = strdup(argv[++i]);
@@ -92,10 +92,10 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
         }
     }
 
-	if (bm->numThreads >= bm->numConsumers)
-	{
-		bm->numConsumers = bm->numThreads;
-	}
+    if (bm->numThreads >= bm->numConsumers)
+    {
+        bm->numConsumers = bm->numThreads;
+    }
 
     if (bm->testFileNames == NULL)
     {
@@ -114,5 +114,43 @@ void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message)
 {
     kl_iterator_forward(iterator);
     kl_iterator_message(iterator, message);
+}
+
+
+void stagger_actors(int numActors, int numMessages, int leadAmount,
+                    void *data, void (*func)(int actor, int index, void *data))
+{
+    // create all consumers here
+    int startingActor = 0;
+    int endingActor = 0;
+    int totalActions = 0;
+    int maxActions = numActors * numMessages;
+    int *numPerformed = calloc(numActors, sizeof(int));
+    while (totalActions < maxActions)
+    {
+        // Is it time to start a new actor?
+        if (endingActor < numActors && endingActor == startingActor)
+        {
+            endingActor++;
+        }
+
+        for (int actor = startingActor;actor < endingActor;actor++)
+        {
+            if (numPerformed[actor] < numMessages)
+            {
+                if (numPerformed[actor] == 0)
+                    func(actor, ACTOR_STARTED, data);
+                func(actor, numPerformed[actor], data);
+                numPerformed[actor]++;
+                totalActions++;
+            }
+            if (actor == startingActor && numPerformed[actor] >= numMessages)
+            {
+                func(actor, ACTOR_FINISHED, data);
+                startingActor++;
+            }
+        }
+    }
+    free(numPerformed);
 }
 
