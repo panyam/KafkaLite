@@ -2,7 +2,7 @@
 #include "kltests.h"
 
 const char *SAMPLE_MESSAGE = "Hello World 1234567890";
-const uint64_t SAMPLE_MESSAGE_LEN = strlen(SAMPLE_MESSAGE);
+const uint64_t SAMPLE_MESSAGE_LEN = 22; // strlen(SAMPLE_MESSAGE);
 
 void makeRandomMessage(char *buffer, int msgId, int nRand)
 {
@@ -40,10 +40,10 @@ long long publishMessages(KLTopic *topic, int numMessages, int nRandMax, bool as
 		totalSize += msgsize;
 		if (assertOffsets)
 		{
-			CPPUNIT_ASSERT(offset == (totalSize + (sizeof(uint64_t) * (i + 1))));
+			assert_true(offset == (totalSize + (sizeof(uint64_t) * (i + 1))));
 		}
 	}
-	CPPUNIT_ASSERT(kl_topic_message_count(topic) == numMessages);
-	CPPUNIT_ASSERT(totalSize + (sizeof(uint64_t) * numMessages) == offset);
+	assert_true(kl_topic_message_count(topic) == numMessages);
+	assert_true(totalSize + (sizeof(uint64_t) * numMessages) == offset);
 	return elapsedTime;
 }
