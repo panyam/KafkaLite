@@ -55,7 +55,6 @@ void kl_context_close(KLContext *context)
 {
 	if (context)
 	{
-		kl_log("\nClosing context...");
 		for (off_t i = 0, count = kl_array_count(context->topics);i < count;i++)
 		{
 			// close the context
@@ -67,7 +66,6 @@ void kl_context_close(KLContext *context)
 		free(context->baseDir);
 		free(context->topicsDir);
 		free(context);
-		kl_log("\nClosed context\n");
 	}
 }
 

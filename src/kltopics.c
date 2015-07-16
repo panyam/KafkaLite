@@ -80,7 +80,6 @@ void kl_topic_finalize(KLTopic *topic)
 {
     if (topic)
     {
-        kl_log("\nClosing topic: %s", topic->name);
         // flush the in mem data if necessary
         kl_topic_flush(topic);
 
