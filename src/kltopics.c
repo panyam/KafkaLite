@@ -326,9 +326,10 @@ size_t kl_topic_get_message_metadata(KLTopic *topic, off_t index, KLMessageMetad
     {
         // index1 to index2 is on disk so read from disk
         outCount = (size_t)(index2 - index1);
-        kl_read_file(topic, topic->indexFile,
-                     out, outCount * sizeof(KLMessageMetadata),
-                     index1 * sizeof(KLMessageMetadata));
+        size_t nRead = kl_read_file(topic, topic->indexFile,
+                     				out, outCount * sizeof(KLMessageMetadata),
+									index1 * sizeof(KLMessageMetadata));
+		assert(nRead == outCount * sizeof(KLMessageMetadata) && "Not enough read");
         out += outCount; //  * sizeof(KLMessageMetadata);
         totalOutCount += outCount;
     } else {

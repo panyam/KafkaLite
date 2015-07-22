@@ -125,11 +125,16 @@ void stagger_actors(int numActors, int numMessages, int leadAmount,
     int endingActor = 0;
     int totalActions = 0;
     int maxActions = numActors * numMessages;
+#define USE_FIXED_SIZE
+#ifdef USE_FIXED_SIZE
+    int numPerformed[1024] = {0};
+#else
     int *numPerformed = calloc(numActors, sizeof(int));
+#endif
     while (totalActions < maxActions)
     {
         // Is it time to start a new actor?
-        if (endingActor < numActors && endingActor == startingActor)
+        if (endingActor < numActors && (endingActor == startingActor || totalActions % leadAmount == 0))
         {
             endingActor++;
         }
@@ -151,6 +156,8 @@ void stagger_actors(int numActors, int numMessages, int leadAmount,
             }
         }
     }
+#ifndef USE_FIXED_SIZE
     free(numPerformed);
+#endif
 }
 

@@ -61,7 +61,7 @@ void test_kl_iterator_consume(void **state)
 
 		// get the message size
 		uint64_t msgsize = kl_iterator_msgsize(iterator);
-		KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize + 1);
+		KLMessage *message = (KLMessage *)calloc(1, sizeof(KLMessage) + msgsize + 1);
 		kl_iterator_message(iterator, message);
 		message->data[msgsize] = 0;
 		makeRandomMessage(buffer, i, i % NUM_RAND_MAX);

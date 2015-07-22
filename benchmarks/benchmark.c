@@ -15,17 +15,17 @@ void test_multiple_threads(Benchmark *bm);
 int main(int argc, char *argv[])
 {
     //int numCPU = sysconf( _SC_NPROCESSORS_ONLN ); printf("NC: %d\n", numCPU);
-     Benchmark *benchmark = calloc(1, sizeof(Benchmark));;
+    Benchmark *benchmark = calloc(1, sizeof(Benchmark));;
     parseArgs(benchmark, argc, argv);
     setup(benchmark);
 
     long long beforeTime = kl_current_timestamp();
-	if (benchmark->numThreads < 1)
-	{
-    	test_single_thread(benchmark);
-	} else {
-    	test_multiple_threads(benchmark);
-	}
+    if (benchmark->numThreads < 1)
+    {
+        test_single_thread(benchmark);
+    } else {
+        test_multiple_threads(benchmark);
+    }
     long long afterTime = kl_current_timestamp();
     kl_log("\nElapsed Time for %d messages: %lld\n", benchmark->numMessages, afterTime - beforeTime);
 }

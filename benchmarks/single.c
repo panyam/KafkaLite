@@ -16,7 +16,7 @@ void pubsub(int actor, int index, void *data)
         if (actor == 0)
             publishMessage(ctx->bm);
         else
-            consumeMessage(ctx->bm, ctx->iterators[actor], ctx->message);
+            consumeMessage(ctx->bm, ctx->iterators[actor - 1], ctx->message);
     }
 }
 
@@ -36,7 +36,6 @@ void test_single_thread(Benchmark *bm)
         ctx.iterators[i] = kl_iterator_new(bm->context, "topic", 0);
     }
     ctx.message = malloc(sizeof(KLMessage) + bm->maxMessageSize);
-
     stagger_actors(bm->numConsumers + bm->numPublishers, bm->numMessages, bm->leadAmount, &ctx, pubsub);
 }
 

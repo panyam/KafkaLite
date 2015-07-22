@@ -79,13 +79,12 @@ bool kl_iterator_forward(KLIterator *iterator)
     }
 
     // see how many we need to fetch
-    if (iterator->currMessageMetadata >= iterator->lastMessageMetadata)
+    if (iterator->currMessageMetadata >= iterator->lastMessageMetadata - 1)
     {
         // reload
         size_t nRead = kl_topic_get_message_metadata(iterator->topic, iterator->currIndex, iterator->messageMetadatas, NUM_MESSAGE_METADATAS);
         if (nRead == 0)
             return false;
-		// printf("Thread: %p, Index: %d, Num Read: %d\n", pthread_self(), iterator->currIndex, nRead);
         iterator->currMessageMetadata = iterator->messageMetadatas;
         iterator->lastMessageMetadata = iterator->currMessageMetadata + nRead;
     } else {
