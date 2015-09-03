@@ -1,3 +1,2 @@
-# ACLOCAL_AMFLAGS = -I m4 --install
-ACLOCAL_AMFLAGS = --install
+ACLOCAL_AMFLAGS = -I pkg/m4 --install
 
