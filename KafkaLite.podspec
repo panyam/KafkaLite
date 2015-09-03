@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "KafkaLite"
-  s.version      = "0.0.5"
+  s.version      = "0.0.6"
   s.summary      = "A light weight embeddable Kafka"
 
   s.description  = <<-DESC
