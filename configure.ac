@@ -5,9 +5,9 @@ AC_PREREQ([2.69])
 AC_INIT([libkafkalite], [0.0.6], [sri.panyam@gmail.com])
 # AC_CONFIG_SRCDIR([benchmarks/benchmark.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_AUX_DIR([pkg/build-aux])
+AC_CONFIG_AUX_DIR([/tmp/libkafkalite/build-aux])
 # AC_CONFIG_LIBOBJ_DIR([portable])
-AC_CONFIG_MACRO_DIR([pkg/m4])
+AC_CONFIG_MACRO_DIR([/tmp/libkafkalite/m4])
 
 AM_INIT_AUTOMAKE([1.11 -Wall -Werror])
 
