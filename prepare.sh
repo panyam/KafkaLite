@@ -1,5 +1,4 @@
 #! /bin/sh
 
-mkdir -p /tmp/libkafkalite/m4
-mkdir -p /tmp/libkafkalite/build-aux
+mkdir -p pkg/m4 pkg/build-aux
 aclocal && automake --gnu --add-missing && autoconf
