@@ -98,7 +98,6 @@ void test_kl_topic_get_message_metadata(void **state)
     char msgbuff[50];
 
 	KLTopicTests *tc = *state;
-    tc->context = kl_context_open(TEST_DIR, NULL);
     KLTopic *topic = kl_topic_open(tc->context, "topic");
     topic->flushThreshold = 4 * (sizeof(KLMessageHeader) + msgsize);
     kl_buffer_destroy(topic->dataBuffer);
