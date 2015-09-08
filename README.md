@@ -52,7 +52,7 @@ pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
 2. Create a context with a base folder:
 
     ```
-    KLContext *context = kl_context_new("/tmp/kafka/", NULL);
+    KLContext *context = kl_context_open("/tmp/kafka/", NULL);
     ```
 
     A KLContext manages one or more topics into which messages can be published into
@@ -61,6 +61,11 @@ pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
     the level of concurrent writes to a set of topics (to increase parallel
     publishes, new contexts can simply be created).   Messages can be consumed
     concurrently.
+    
+    The second parameter accepts the factory/manager for managing locks.  NULL implies
+    no locking is required (as access to KL is already synchronized).   Alternatively 
+    ```kl_pthread_lock_manager()``` can be passed as a parameter to use locks based on
+    the pthreads library.  
 
 3. Create topics to publish messages into
 
@@ -108,7 +113,7 @@ pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
         bool hasMore = kl_iterator_forward(iterator);
         if (hasMore)
         {
-            size_t msgsize = kl_iterator_msgsize(iterator);
+            uint64_t msgsize = kl_iterator_msgsize(iterator);
             KLMessage *message = (KLMessage *)malloc(sizeof(KLMessage) + msgsize);
             kl_iterator_message(iterator, message);
             
@@ -119,7 +124,12 @@ pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
 
     Multiple iterators can be created to start at different offsets and can iterate
     and consume messages concurrently.
-    
+
+    After an iterator has been used, it can be destroyed with:
+    ```
+    kl_iterator_destroy(context)
+    ```
+
 7. When finished with the context call:
     ```
     kl_context_destroy(context)
@@ -147,6 +157,15 @@ Usage: /home/panyam/projects/KafkaLite/benchmarks/.libs/lt-klbench <options>
         -l    The number of messages by which the consumer will lag the publisher.
 ```
 
+Following benchmarks have been run:
+
+1. Single Producer / Single Consumer (with a variable lag) in a single thread
+2. Single Producer and Multiple consumer all in a single thread with variable lag between each actor.
+3. Single Producer and Single Consumer running in two different threads.
+4. Single Producer and Multiple Consumers all in different threads.
+5. Single Producer (1 thread) and Multiple Consumers (1 thread for all Consumers)
+ 
+
 ## Things to do
 
 1. Add more benchmarks.
@@ -154,3 +173,4 @@ Usage: /home/panyam/projects/KafkaLite/benchmarks/.libs/lt-klbench <options>
    (such as WinThreads, GCD etc).
 3. Focus on improving flush times on lower memory usage.
 4. Block consumers when at the end of a log and no messages are available (this can be implemented at a layer above for now).
+5. Current message headers are very simple.   May be allow an option to allow the user to specify header size to allow arbitraty data to be passed in the header in users' discretion.  The header size would still be fixed on a pe topic basis but this allows the user to tradeoff header size with message richness so more can be done at a message header level (eg filtering etc) without reading the entire message.
