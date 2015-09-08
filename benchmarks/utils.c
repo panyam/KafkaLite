@@ -60,9 +60,9 @@ void loadTestData(Benchmark *bm)
 	}
 }
 
-void usage()
+void usage(const char *exename)
 {
-    printf("Usage: benchmarks <options>\n");
+    printf("Usage: %s <options>\n", exename);
     printf("    Options:\n");
     printf("        -m    Number of messages to publish\n");
     printf("        -p    Number of producers\n");
@@ -111,7 +111,7 @@ void parseArgs(Benchmark *bm, int argc, char *argv[])
         {
             bm->testFileNames = strdup(argv[++i]);
         } else {
-            usage();
+            usage(argv[0]);
         }
     }
 
