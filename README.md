@@ -14,6 +14,8 @@ make
 make install
 ```
 
+Automake version 1.14 or above is required.  This is available on homebrew.
+
 ### From a particular release
 
 * Download sources for a particular version from: https://github.com/panyam/KafkaLite/releases
@@ -25,6 +27,8 @@ tar -zxvf libkafkalite-<version>.tar.gz
 make
 make install
 ```
+
+Automake version 1.14 or above is required.  This is available on homebrew.
 
 ### For an iOS project
 
