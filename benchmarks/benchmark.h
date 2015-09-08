@@ -19,6 +19,7 @@ typedef struct Benchmark
     int numConsumers;
     int numThreads;
     int numTestMessages;
+	int payloadSize;
     char *testFileNames;
     KLArray *testMessages;
     size_t maxMessageSize;
@@ -26,7 +27,7 @@ typedef struct Benchmark
     KLTopic *topic;
 } Benchmark;
 
-extern void loadTestFiles(Benchmark *bm);
+extern void loadTestData(Benchmark *bm);
 extern void parseArgs(Benchmark *bm, int argc, char *argv[]);
 extern void publishMessage(Benchmark *bm);
 extern void consumeMessage(Benchmark *bm, KLIterator *iterator, KLMessage *message);

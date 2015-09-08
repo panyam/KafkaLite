@@ -3,7 +3,7 @@
 
 void setup(Benchmark *bm)
 {
-    loadTestFiles(bm);
+    loadTestData(bm);
     kl_rmdirs(bm->contextDir);
     bm->context = kl_context_open(bm->contextDir, bm->numThreads == 0 ? NULL : kl_pthread_lock_manager());
     bm->topic = kl_topic_open(bm->context, "topic");
