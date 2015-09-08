@@ -36,7 +36,7 @@ void kl_topic_initialize(KLContext *context, KLTopic *topic, const char *name)
     errno = 0;
     sprintf(buffer, "%s/%s.data", context->topicsDir, name);
     topic->dataFile = open(buffer, O_RDWR | O_CREAT, 0777);
-    if (topic->indexFile < 0)
+    if (topic->dataFile < 0)
     {
         kl_log("Unable to open data file. error: %s", strerror(errno));
         return ;
