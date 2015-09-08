@@ -34,8 +34,9 @@ int kl_topic_tests_teardown(void **state) {
 void test_kl_topic_open_multi(void **state)
 {
 	KLTopicTests *tc = *state;
-	KLTopic *topics[64];
-	for (int i = 0;i < 64;i++)
+	const int numTopics = DEFAULT_ARRAY_CAPACITY * 2;
+	KLTopic *topics[numTopics];
+	for (int i = 0;i < numTopics;i++)
 	{
 		char topicname[32];
 		sprintf(topicname, "topic%d", i);

@@ -17,7 +17,7 @@ KLArray *kl_array_new(size_t elemSize, size_t capacity)
 	KLArray *out = calloc(1, sizeof(KLArray));
 	out->elemSize = elemSize;
 	if (capacity <= 0)
-		capacity = 32;
+		capacity = DEFAULT_ARRAY_CAPACITY;
 	out->capacity = capacity;
 	out->buffer = calloc(capacity, elemSize);
 	return out;

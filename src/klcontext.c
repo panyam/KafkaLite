@@ -24,7 +24,7 @@ KLContext *kl_context_open(const char *baseDir, KLLockManager *lockManager)
 		return NULL;
 	}
 
-	out->topics = kl_array_new(sizeof(KLTopic), 32);
+	out->topics = kl_array_new(sizeof(KLTopic), DEFAULT_ARRAY_CAPACITY);
 	kl_context_set_mutex_factory(out, lockManager);
 	return out;
 }

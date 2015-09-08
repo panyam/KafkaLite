@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#define DEFAULT_ARRAY_CAPACITY 32
+
 /**
  * Creates a new array.
  */
