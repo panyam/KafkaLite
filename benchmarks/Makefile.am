@@ -6,7 +6,6 @@ AM_CXXFLAGS = --pedantic -Wall
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
-PROGRAMS=klbench
 bin_PROGRAMS = klbench
 klbench_SOURCES = benchmark.c benchmark.h multi.c single.c utils.c
 klbench_LDADD = -lkafkalite
