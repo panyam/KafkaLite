@@ -2,7 +2,31 @@
 
 ## Installation
 
-### From an iOS project
+### From sources
+
+* Checkout from github
+* prepare, configure and install:
+
+```
+sh prepare.sh
+./configure
+make
+make install
+```
+
+### From a particular release
+
+* Download sources for a particular version from: https://github.com/panyam/KafkaLite/releases
+* configure and install:
+
+```
+tar -zxvf libkafkalite-<version>.tar.gz
+./configure
+make
+make install
+```
+
+### For an iOS project
 
 Add the KafkaLite pod to your Podfile:
 
@@ -14,18 +38,6 @@ or to get the latest development version:
 
 ```
 pod 'KafkaLite', :git => 'https://github.com/panyam/KafkaLite.git'
-```
-
-### From Sources
-
-* Download sources for a particular version from: https://github.com/panyam/KafkaLite/releases
-* configure and install:
-
-```
-tar -zxvf libkafkalite-<version>.tar.gz
-./configure
-make
-make install
 ```
 
 
@@ -117,13 +129,28 @@ make install
     context or topics assigned within this context (with kl_topic_open) is now
     unusable.
 
+## Benchmarks
+
+Upon installation, a benchmark tool is created - klbench.  This allows to run the kafkalite library under several scenarios.  The following usage options are provided (by running klbench -h):
+
+```
+Usage: /home/panyam/projects/KafkaLite/benchmarks/.libs/lt-klbench <options>
+    Options:
+        -m    Number of messages to publish
+        -p    Number of producers
+        -c    Number of consumers
+        -nt   Number of threads.  1 Thread will be for publisher and the rest of the threads will be for consumers
+        -t    Comma separated names of test message files that will be published randomly
+        -d    Size of payload to publish.  This is ignored if test files are specified via 
+              the -t option.  If neither -t or -d are specified then -d is implied with a 
+              default message size of 256 bytes
+        -l    The number of messages by which the consumer will lag the publisher.
+```
+
 ## Things to do
 
-1. Finish up all the benchmarks.
-2. Implement caching of records for speeding up consumers and try a few
-   different strategies (gut feel says LRU but would depend a lot on consumer
-   patterns).
-3. Make file and thread APIs more abstract to enable use of native constructs
+1. Add more benchmarks.
+2. Make file and thread APIs more abstract to enable use of native constructs
    (such as WinThreads, GCD etc).
-4. Lot more tests for things like reading and writing batch records.
-5. Focus on improving flush times on lower memory usage.
+3. Focus on improving flush times on lower memory usage.
+4. Block consumers when at the end of a log and no messages are available (this can be implemented at a layer above for now).
