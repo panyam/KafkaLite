@@ -29,6 +29,21 @@ int kl_topic_tests_teardown(void **state) {
 }
 
 /**
+ * Open multiple topics
+ */
+void test_kl_topic_open_multi(void **state)
+{
+	KLTopicTests *tc = *state;
+	KLTopic *topics[64];
+	for (int i = 0;i < 64;i++)
+	{
+		char topicname[32];
+		sprintf(topicname, "topic%d", i);
+		topics[i] = kl_topic_open(tc->context, topicname);
+	}
+}
+
+/**
  * Publish a message to a topic and see its count go up.
  */
 void test_kl_topic_publish(void **state)
@@ -139,10 +154,11 @@ int run_topic_tests()
 {
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test_setup_teardown(test_kl_topic_publish, kl_topic_tests_setup, kl_topic_tests_teardown),
-		// cmocka_unit_test_setup_teardown(test_kl_topic_publish_load, kl_topic_tests_setup, kl_topic_tests_teardown),
+		cmocka_unit_test_setup_teardown(test_kl_topic_publish_load, kl_topic_tests_setup, kl_topic_tests_teardown),
 		// cmocka_unit_test_setup_teardown(test_kl_topic_publish_load_with_locking, kl_topic_tests_setup, kl_topic_tests_teardown),
 		cmocka_unit_test_setup_teardown(test_kl_topic_restart, kl_topic_tests_setup, kl_topic_tests_teardown),
 		cmocka_unit_test_setup_teardown(test_kl_topic_get_message_metadata, kl_topic_tests_setup, kl_topic_tests_teardown),
+		cmocka_unit_test_setup_teardown(test_kl_topic_open_multi, kl_topic_tests_setup, kl_topic_tests_teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

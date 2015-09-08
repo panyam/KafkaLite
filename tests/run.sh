@@ -6,4 +6,4 @@ ar -cvq libkafkalite.a *.o
 cd -
 gcc -std=gnu99 -g *.c -I ../src/ ../bld/*.o -o ../bld/kltests -lpthread -lcmocka
 # ../bld/kltests
-valgrind --leak-check=full -v ../bld/kltests
+valgrind --track-origins=yes --leak-check=full -v ../bld/kltests
