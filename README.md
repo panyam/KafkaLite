@@ -178,3 +178,4 @@ Following benchmarks have been run:
 3. Focus on improving flush times on lower memory usage.
 4. Block consumers when at the end of a log and no messages are available (this can be implemented at a layer above for now).
 5. Current message headers are very simple.   May be allow an option to allow the user to specify header size to allow arbitraty data to be passed in the header in users' discretion.  The header size would still be fixed on a pe topic basis but this allows the user to tradeoff header size with message richness so more can be done at a message header level (eg filtering etc) without reading the entire message.
+6. Add JNI wrappers for use in Android.
