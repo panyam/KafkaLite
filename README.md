@@ -3,22 +3,47 @@
 ## Background
 
 
-This library enables any application to embed an event broker with persistence so that it could consume events at its own pace. The purpose of this library is NOT to replace or compete with GCD or java.util.conc (which provide excellent primitives to do in memory queuing and processing of events).  This library is inspired by Apache Kafka's original design (ie a stateless, fast and append only log). This is written in C so as to be portable across any platform and without having to incur the cost bundling and invoking a JVM (clearly there is a lot to be done for this to be useable on the server side) - Hence the "Lite".
+This library enables any application to embed an event broker with persistence so that 
+it could consume events at its own pace. The purpose of this library is NOT to replace 
+or compete with GCD or java.util.conc (which provide excellent primitives to do in 
+memory queuing and processing of events).  This library is inspired by Apache Kafka's 
+original design (ie a stateless, fast and append only log). This is written in C so as 
+to be portable across any platform and without having to incur the cost bundling and 
+invoking a JVM - Hence the "Lite" aspect of KL.  While nothing prevents its use on the 
+server side a lot more needs to be done.
 
-A common use case this library serves is in aiding object synchronization via messaging.  Consider a mobile messaging application that allows users to send and receive messages as well as do other CRUD operations on messages and  other application specific models (objects).  Synchronizing these events across all clients (say users in a channel) could be done in one of two ways:
+A common use case this library serves is in aiding object synchronization via messaging.  
+Consider a mobile messaging application that allows users to send and receive messages as 
+well as do other CRUD operations on messages and  other application specific models (objects).  
+Synchronizing these events across all clients (say users in a channel) could be done in 
+one of two ways.
 
 * Maintain a persistent connection (eg via websockets) to the server which would
-  publish events to the client.  The problem with the first approach is that maintaining a persistent connection is not always possible (eg due to unreliable data networks).  Additionally, for each client the server is pubishing to, the client state pertaining to offsets in the event stream would have to be maintained and recorded.
-* Have the client poll and fetch change events periodically from the server.  Of course the server would have to maintain its own event log - but a Kafka event sprayer that publishes to websockets is possible.
+  publish events to the client.  The problem with the first approach is that maintaining 
+  a persistent connection is not always possible (eg due to unreliable data networks).  
+  Additionally, for each client the server is pubishing to, the client state pertaining 
+  to offsets in the event stream would have to be maintained and recorded.
+* Have the client poll and fetch change events periodically from the server.  Of course 
+  the server would have to maintain its own event log - but a Kafka event sprayer that 
+  publishes to websockets is possible.
 
 Both cases suffer from the problem of the client needing to process events as
 soon as they are received which may not be feasible (eg due to slow clients,
 differences in priorities of the events as perceived by the client, etc).  Some
 times it is just beneficial for the client to consume and process events at its
 own pace and schedule.  In such cases a framework to persist the events in an
-append only fashion is extremely desirable.  This library allows an  append only log of events that are persisted as they are received (and because there can be multiple topics for each KL context) client specific prioritisation of events is also now possible.
+append only fashion is extremely desirable.  This library allows an  append only 
+log of events that are persisted as they are received (and because there can be 
+multiple topics for each KL context) client specific prioritisation of events 
+is also now possible.
 
-For now replication has not been considered as it can be built on top as and when required. Also sharing of messages on a particular topic across processes while possible was not an immediate priority (would love to hear other use cases for this) so was eschewed. Other things in the pipeline include a few sample producers that are platform specific (eg websockets based publishers, polling based publishers) but these seemed not generic enough (at least as of now) so have not yet been investigated.
+For now replication has not been considered as it can be built on top as and when 
+required. Also sharing of messages on a particular topic across processes while 
+possible was not an immediate priority (would love to hear other use cases for this) 
+so was eschewed. Other things in the pipeline include a few sample producers that 
+are platform specific (eg websockets based publishers, polling based publishers) 
+but these seemed not generic enough (at least as of now) so have not yet been 
+investigated.
 
 ## Installation
 
