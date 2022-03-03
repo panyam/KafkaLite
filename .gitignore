@@ -43,6 +43,7 @@ configure
 *.log
 Makefile
 config.h
+config.h.in~
 src/.deps/
 stamp-h1
 benchmarks/Makefile
@@ -50,3 +51,11 @@ src/Makefile
 tests/Makefile
 m4
 build-aux
+
+benchmarks/.deps/
+benchmarks/.libs/
+benchmarks/klbench
+libtool
+out/
+src/.libs/
+tests/.deps/

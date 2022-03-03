@@ -1,4 +1,8 @@
 #! /bin/sh
 
+LIBTOOLIZE=libtoolize
+if [ `uname` = "Darwin" ]; then
+  LIBTOOLIZE=glibtoolize
+fi
 mkdir -p pkg/m4 pkg/build-aux
-libtoolize && autoheader && aclocal && automake --gnu --add-missing && autoconf
+$LIBTOOLIZE && autoheader && aclocal && automake --gnu --add-missing && autoconf
